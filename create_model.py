@@ -46,7 +46,7 @@ np.savetxt('_fortress_tmp/phistar.txt', phihatT.flatten(order='F'))
 np.savetxt('_fortress_tmp/iw_Psi.txt', S)
 np.savetxt('_fortress_tmp/Omega_inv.txt', np.linalg.inv(omega))
 
-ndraws = 5000
+ndraws = 9600
 #phis, sigmas = prior.rvs(size=ndraws, flatten_output=False)
 phis, sigmas = bvar.sample(nsim=ndraws, flatten_output=False)
 
@@ -76,7 +76,7 @@ for i in tqdm(range(ndraws)):
                         beta]
 
 
-#np.savetxt('_fortress_tmp/priordraws.txt', priorsim)
+np.savetxt('_fortress_tmp/priordraws.txt', priorsim)
 
 #tau, d,  w, lam, mu, root = 0.5, 1, 1, 0.5, 0.5, 1
 
@@ -117,7 +117,8 @@ np.savetxt('proxy.txt',proxy)
 varfile = varfile.format(datafile='_fortress_tmp/data.txt', proxyfile='_fortress_tmp/proxy.txt',
                          assign_para = '\n'.join(A0str + Apstr), **vars(ei))
 
-smc = make_smc(varfile, other_files=['data.txt','proxy.txt'])
+smc = make_smc(varfile, other_files={'data.txt': data['1993':'2007-06'][yy].values,
+                                     'proxy.txt': proxy})
 
 
 # Minnesota Prior Hyperparameters
@@ -140,66 +141,66 @@ m = ['EGON_KUTTNER_NI']
 
 
 
-import sys
+# import sys
 
-sys.path.append('/mq/home/m1eph00/projects/dsge-book/code/helper')
-from helper import SMCResults
+# sys.path.append('/mq/home/m1eph00/projects/dsge-book/code/helper')
+# from helper import SMCResults
 
-smc = SMCResults('svar_proxy-mix', npart=9600, nblocks=25, nphi=2000, lam=2.7)
-parasim = smc.load_draws([0])
-jj = parasim.postsim.argmax()
-A0hat, Aphat = ei.para_trans(parasim[smc['paranames'][:-2]].ix[jj])
+# smc = SMCResults('svar_proxy-mix', npart=9600, nblocks=25, nphi=2000, lam=2.7)
+# parasim = smc.load_draws([0])
+# jj = parasim.postsim.argmax()
+# A0hat, Aphat = ei.para_trans(parasim[smc['paranames'][:-2]].ix[jj])
 
-from collections import defaultdict
-irfs = defaultdict(p.DataFrame)
-h = 49
-irfs = p.DataFrame()
+# from collections import defaultdict
+# irfs = defaultdict(p.DataFrame)
+# h = 49
+# irfs = p.DataFrame()
 
-def long_run_coefficients(A0, Ap, equation=0):
-    """
-    Computes the Long Run Coefficients a la Sims-Zha
-    """
-    eqi = equation
-    ny = A0.shape[0]
+# def long_run_coefficients(A0, Ap, equation=0):
+#     """
+#     Computes the Long Run Coefficients a la Sims-Zha
+#     """
+#     eqi = equation
+#     ny = A0.shape[0]
     
-    alpha = A0[:, eqi]
-    alpha = [np.r_[A0[i, eqi], -Ap[:, eqi][i::ny]] for i in range(ny)]
+#     alpha = A0[:, eqi]
+#     alpha = [np.r_[A0[i, eqi], -Ap[:, eqi][i::ny]] for i in range(ny)]
     
-    delta = -alpha[eqi]
+#     delta = -alpha[eqi]
     
-    lr_coeff_diff = np.array([ai.sum()/delta.sum() for ai in alpha])
-    sr_coeff_diff = np.array([ai.sum()/A0[0, 0] for ai in alpha])
-    lr_coeff_lev = np.array([ai.cumsum().sum()/delta.sum() for ai in alpha])
+#     lr_coeff_diff = np.array([ai.sum()/delta.sum() for ai in alpha])
+#     sr_coeff_diff = np.array([ai.sum()/A0[0, 0] for ai in alpha])
+#     lr_coeff_lev = np.array([ai.cumsum().sum()/delta.sum() for ai in alpha])
 
-    return lr_coeff_diff, lr_coeff_lev, sr_coeff_diff
-
-
-nsim = 9600
-
-lrc_diff = np.zeros((nsim, 5))
-lrc_lev = np.zeros((nsim, 5))    
-src_diff = np.zeros((nsim, 5))
-for i in range(9600):
-    A0, Ap = ei.para_trans(parasim[smc['paranames'][:-2]].ix[i])
-    for j in range(5):
-        if np.linalg.inv(A0).dot(A0hat[:, j])[j] > 0:
-            A0[:, j] = -A0[:, j]
-            Ap[:, j] = -Ap[:, j]
-
-    #irf = ei.structural_irf(A0, Ap, h=h)
-    #irf[0] = irf[0] * np.sign(irf[0][0, 0])
-
-    #irfs = irfs.append(p.DataFrame(irf[0], columns=yy))
-
-    lrc_diff[i], lrc_lev[i], src_diff[i] = long_run_coefficients(A0, Ap)
+#     return lr_coeff_diff, lr_coeff_lev, sr_coeff_diff
 
 
-lrc_diff = p.DataFrame(lrc_diff, columns=yy)
-lrc_lev = p.DataFrame(lrc_lev, columns=yy)
-src_diff = p.DataFrame(src_diff, columns=yy)
-median = irfs.groupby(irfs.index).median()
-q05 = irfs.groupby(irfs.index).quantile(0.05)
-q95 = irfs.groupby(irfs.index).quantile(0.95)
+# nsim = 9600
+
+# lrc_diff = np.zeros((nsim, 5))
+# lrc_lev = np.zeros((nsim, 5))    
+# src_diff = np.zeros((nsim, 5))
+# for i in range(9600):
+#     A0, Ap = ei.para_trans(parasim[smc['paranames'][:-2]].ix[i])
+#     for j in range(5):
+#         if np.linalg.inv(A0).dot(A0hat[:, j])[j] > 0:
+#             A0[:, j] = -A0[:, j]
+#             Ap[:, j] = -Ap[:, j]
+
+#     #irf = ei.structural_irf(A0, Ap, h=h)
+#     #irf[0] = irf[0] * np.sign(irf[0][0, 0])
+
+#     #irfs = irfs.append(p.DataFrame(irf[0], columns=yy))
+
+#     lrc_diff[i], lrc_lev[i], src_diff[i] = long_run_coefficients(A0, Ap)
+
+
+# lrc_diff = p.DataFrame(lrc_diff, columns=yy)
+# lrc_lev = p.DataFrame(lrc_lev, columns=yy)
+# src_diff = p.DataFrame(src_diff, columns=yy)
+# median = irfs.groupby(irfs.index).median()
+# q05 = irfs.groupby(irfs.index).quantile(0.05)
+# q95 = irfs.groupby(irfs.index).quantile(0.95)
 
 
 # import matplotlib.pyplot as plt
