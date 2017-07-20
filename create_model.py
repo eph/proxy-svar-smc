@@ -8,7 +8,7 @@ from fortress import make_smc
 
 import sympy 
 
-data_file = '/home/eherbst/Dropbox/Bayesian-Proxy-SVAR/code/data/vardataJune7.txt'
+data_file = 'varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
 
 yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY']
@@ -118,7 +118,7 @@ varfile = varfile.format(datafile='_fortress_tmp/data.txt', proxyfile='_fortress
                          assign_para = '\n'.join(A0str + Apstr), **vars(ei))
 
 smc = make_smc(varfile, other_files={'data.txt': data['1993':'2007-06'][yy].values,
-                                     'proxy.txt': proxy})
+                                     'proxy.txt': proxy.values})
 
 
 # Minnesota Prior Hyperparameters
