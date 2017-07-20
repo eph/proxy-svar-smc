@@ -11,7 +11,8 @@ import sympy
 data_file = 'varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
 
-yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY']
+#yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
+yy = ['FFR_SSR', 'BAA_10YMOODY']
 presample = data['1990':'1993'][yy]
 proxy = data['1994':'2007-06']['EGON_KUTTNER_NI']
 
@@ -42,11 +43,8 @@ nu = yest.shape[0] - bvar._p * bvar._ny - bvar._cons*1
 omega = xest.T.dot(xest)
 muphi = phihatT
 
-np.savetxt('_fortress_tmp/phistar.txt', phihatT.flatten(order='F'))
-np.savetxt('_fortress_tmp/iw_Psi.txt', S)
-np.savetxt('_fortress_tmp/Omega_inv.txt', np.linalg.inv(omega))
 
-ndraws = 9600
+ndraws = 2000
 #phis, sigmas = prior.rvs(size=ndraws, flatten_output=False)
 phis, sigmas = bvar.sample(nsim=ndraws, flatten_output=False)
 
@@ -76,7 +74,7 @@ for i in tqdm(range(ndraws)):
                         beta]
 
 
-np.savetxt('_fortress_tmp/priordraws.txt', priorsim)
+
 
 #tau, d,  w, lam, mu, root = 0.5, 1, 1, 0.5, 0.5, 1
 
@@ -114,13 +112,20 @@ Apstr = [mat_str('F', i+1, j+1, sympy.fcode(value, source_format='free'))
 varfile = open('svar.f90', 'r').read()
 np.savetxt('data.txt',data['1993':'2007-06'][yy])
 np.savetxt('proxy.txt',proxy)
-varfile = varfile.format(datafile='_fortress_tmp/data.txt', proxyfile='_fortress_tmp/proxy.txt',
+varfile = varfile.format(datafile='data.txt', proxyfile='proxy.txt',
                          assign_para = '\n'.join(A0str + Apstr), **vars(ei))
 
 smc = make_smc(varfile, other_files={'data.txt': data['1993':'2007-06'][yy].values,
                                      'proxy.txt': proxy.values})
 
+np.savetxt('_fortress_tmp/priordraws.txt', priorsim)
+np.savetxt('_fortress_tmp/phistar.txt', phihatT.flatten(order='F'))
+np.savetxt('_fortress_tmp/iw_Psi.txt', S)
+np.savetxt('_fortress_tmp/Omega_inv.txt', np.linalg.inv(omega))
 
+
+smc.run(npart=1000,nblocks=25,nproc=4,bend=2.7,conditional_covariance=True,
+        initial_particles='_fortress_tmp/priordraws.txt')
 # Minnesota Prior Hyperparameters
 
 

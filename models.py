@@ -4,7 +4,7 @@ import pandas as p
 
 from pyvar import DummyVarPrior, SimsZhaSVARPrior, BayesianVAR
 
-data_file = '/if/scratch-m1dxc05/AER_revision/baselineEstimation/vardataJune7.txt'
+data_file = 'varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, 
                   index_col='DATES', parse_dates=True)
 

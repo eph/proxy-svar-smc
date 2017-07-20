@@ -2,14 +2,16 @@ import numpy as np
 import pandas as p
 import matplotlib.pyplot as plt
 
+import json
+
 from models import svar_model, rf_model, data, yy,  svar_model4
-from simulations import smc_baseline as smc
+# from simulations import smc_baseline as smc
 
 h = 49
 
 import sys
-sys.path.append('/mq/home/m1eph00/projects/dsge-book/code/helper')
-from helper import SMCResults
+# sys.path.append('/mq/home/m1eph00/projects/dsge-book/code/helper')
+# from helper import SMCResults
 
 model = 'svar12_sign_cpi_loose'
 if 'nocs' in model: 
@@ -19,26 +21,28 @@ if 'cpi' in model:
     yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
 
 od = '/mq/scratch/m1eph00/proxy-svar/'
-smc = SMCResults(model+'-mix', data_dir=od, npart=9600, nblocks=25, nphi=500, lam=2.7)
 
+results = json.loads(open('output.json').read())
 
-parasim = smc.load_draws([0])
+parasim = p.DataFrame(results['output']['parasim'])
 
-ii = parasim.postsim.argmax()
-A0hat, Aphat = svar_model.para_trans(parasim[smc['paranames'][:-2]].ix[ii])
+#parasim = smc.load_draws([0])
+# ii = parasim.postsim.argmax()
+# A0hat, Aphat = svar_model.para_trans(parasim[smc['paranames'][:-2]].ix[ii])
 
+# irf_max = p.DataFrame(-svar_model.structural_irf(A0hat, Aphat, h=h)[0], 
+#                       columns=yy)
 
-irf_max = p.DataFrame(-svar_model.structural_irf(A0hat, Aphat, h=h)[0], 
-                      columns=yy)
-
-fevd_max = p.DataFrame(svar_model.structural_fevd(A0hat, Aphat, h=h)[0], 
-                      columns=yy)
+# fevd_max = p.DataFrame(svar_model.structural_fevd(A0hat, Aphat, h=h)[0], 
+#                       columns=yy)
 
 irfs = p.DataFrame()
 fevds = p.DataFrame()
 
 from tqdm import tqdm
 
+smc = {}
+smc['paranames'] = [name in parasim.columns if name.startswith('para')]
 
 nsim = parasim.shape[0]
 nsim = 1000
