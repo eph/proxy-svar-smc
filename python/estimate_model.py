@@ -136,7 +136,7 @@ smc = make_smc(varfile, other_files=other_files, output_directory=output_dir)
 
 smc.run(npart=1000, nblocks=25, nproc=4, bend=2.7,
         conditional_covariance=True,
-        initial_particles='_fortress_tmp/priordraws.txt',
+        initial_particles=output_dir +'/priordraws.txt',
         output_file='%s.json' % args.model)
 
 # yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY']

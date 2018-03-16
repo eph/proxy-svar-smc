@@ -60,7 +60,7 @@ contains
     integer :: i,j
 
     !self%npara = self%nA + self%nF
-    datafile = 'datat.txt'
+    datafile = 'data.txt'
     name = '{name}'
     call self%construct_abstract_bayesian_model(name, datafile, self%nA+self%nF, {ny}, {T})
     self%likT = self%T - self%p
