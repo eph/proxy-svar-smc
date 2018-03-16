@@ -1,7 +1,7 @@
 # Replication code for "Monetary Policy, Credit Spreads, and Business Cycle Fluctuations"
-## by Dario Caldara and Ed Herbst
+### by Dario Caldara and Ed Herbst
 
-You can get the paper here: [paper](https://www.aeaweb.org/articles?id=10.1257/mac.20170294)
+You can get the paper [here](https://www.aeaweb.org/articles?id=10.1257/mac.20170294).
 
 Email ed.herbst@gmail.com with comments/questions.
 

@@ -30,7 +30,7 @@ proxy = data['1994':'2007-06']['EGON_KUTTNER_NI']
 signu = 'fixed'
 
 output_dir = '_fortress_' + args.model
-
+print(output_dir)
 
 #------------------------------------------------------------
 # Prior as Posterior given VAR data
@@ -59,7 +59,7 @@ omega = xest.T.dot(xest)
 muphi = phihatT
 
 
-ndraws = 12000
+ndraws = 1500
 
 
 phis, sigmas = bvar.sample(nsim=10, flatten_output=False)
@@ -96,16 +96,13 @@ for i in tqdm(range(ndraws)):
 ny = len(yy)
 
 hyper = np.ones((7,))
-
+restriction=np.ones((ny,ny), dtype=bool)
 ei = SimsZhaSVARPrior(data['1990':'1993'][yy], hyper, p=12,
-                      restriction=np.ones((ny,ny), dtype=bool))
+                      restriction=restriction)
 ei.nA = restriction.shape[0]**2
 ei.nF = ei.ny**2*ei.p + ei.ny
 ei.name = 'ei'
 ei.T = data['1993':'2007-06'][yy].shape[0]
-ei.phistar_file = output_dir + '/phistar.txt'
-ei.iw_Psi_file =  output_dir + '/iw_Psi.txt'
-ei.Omega_inv_file = output_dir + '/Omega_inv.txt'
 ei.nu = nu
 
 if signu is 'fixed':
@@ -125,21 +122,19 @@ Apstr = [mat_str('F', i+1, j+1, sympy.fcode(value, source_format='free'))
 
 
 varfile = open('svar.f90', 'r').read()
-np.savetxt('data.txt',data['1993':'2007-06'][yy])
-np.savetxt('proxy.txt',proxy)
-varfile = varfile.format(datafile='data.txt', proxyfile='proxy.txt',
-                         assign_para = '\n'.join(A0str + Apstr), **vars(ei))
+varfile = varfile.format(assign_para = '\n'.join(A0str + Apstr), **vars(ei))
 
-smc = make_smc(varfile, other_files={'data.txt': data['1993':'2007-06'][yy].values,
-                                     'proxy.txt': proxy.values})
+other_files={'data.txt': data['1993':'2007-06'][yy].values,
+             'proxy.txt': proxy.values,
+             'priordraws.txt': priorsim,
+             'phistar.txt': phihatT.flatten(order='F'),
+             'iw_Psi.txt': S,
+             'Omega_inv.txt': np.linalg.inv(omega)}
 
-np.savetxt(output_dir + '/priordraws.txt', priorsim)
-np.savetxt(output_dir + '/phistar.txt', phihatT.flatten(order='F'))
-np.savetxt(output_dir + '/iw_Psi.txt', S)
-np.savetxt(output_dir + '/Omega_inv.txt', np.linalg.inv(omega))
+smc = make_smc(varfile, other_files=other_files, output_directory=output_dir)
 
 
-smc.run(npart=9600, nblocks=25, nproc=4, bend=2.7,
+smc.run(npart=1000, nblocks=25, nproc=4, bend=2.7,
         conditional_covariance=True,
         initial_particles='_fortress_tmp/priordraws.txt',
         output_file='%s.json' % args.model)

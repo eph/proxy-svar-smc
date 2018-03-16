@@ -60,7 +60,7 @@ contains
     integer :: i,j
 
     !self%npara = self%nA + self%nF
-    datafile = '{datafile}'
+    datafile = 'datat.txt'
     name = '{name}'
     call self%construct_abstract_bayesian_model(name, datafile, self%nA+self%nF, {ny}, {T})
     self%likT = self%T - self%p
@@ -80,7 +80,7 @@ contains
 
     self%T = self%likT
 
-    call read_array_from_file('{proxyfile}', self%proxy)
+    call read_array_from_file('proxy.txt', self%proxy)
   end function new_model
 
   real(wp) function lik(self, para, T) result(l)
@@ -132,9 +132,9 @@ contains
 
     pr%npara = pr%nA + pr%nF + {nextra_para}
     
-    call read_array_from_file('{phistar_file}', pr%hyper_phistar)
-    call read_array_from_file('{Omega_inv_file}',pr%hyper_Omega_inv)
-    call read_array_from_file('{iw_Psi_file}',pr%hyper_iw_Psi)
+    call read_array_from_file('phistar.txt', pr%hyper_phistar)
+    call read_array_from_file('Omega_inv.txt',pr%hyper_Omega_inv)
+    call read_array_from_file('iw_Psi.txt',pr%hyper_iw_Psi)
     
     pr%hyper_iw_nu = {nu}
 
