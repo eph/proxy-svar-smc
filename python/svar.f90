@@ -147,7 +147,7 @@ contains
 
     integer, intent(in) :: nsim
     integer, optional :: seed
-    type(fortress_random), optional :: rng
+    type(fortress_random), optional, intent(inout) :: rng
 
     real(wp) :: parasim(self%npara, nsim)
 

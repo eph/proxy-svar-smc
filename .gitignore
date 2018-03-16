@@ -1,0 +1,4 @@
+*.json
+*.mat
+*.pyc
+fortran_rf_garbage/*

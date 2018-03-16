@@ -1,3 +1,11 @@
+import argparse
+
+parser = argparse.ArgumentParser(description='Estimation a model with SMC.')
+parser.add_argument('--model', help='the model to estimate', action='store',
+                    choices=['4eq', '5eq'], default='5eq')
+                                 
+args = parser.parse_args()
+
 import numpy as np
 import pandas as p
 
@@ -8,29 +16,36 @@ from fortress import make_smc
 
 import sympy 
 
-data_file = 'varData.txt'
+data_file = '../data/varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
 
-#yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
-yy = ['FFR_SSR', 'BAA_10YMOODY']
+if args.model is '4eq':
+    yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
+elif args.model is '5eq':
+    yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
+
 presample = data['1990':'1993'][yy]
 proxy = data['1994':'2007-06']['EGON_KUTTNER_NI']
 
 signu = 'fixed'
-output_dir = '_fortress_tmp'
+
+output_dir = '_fortress_' + args.model
 
 
 #------------------------------------------------------------
 # Prior as Posterior given VAR data
 if 'BAA_10YMOODY' in yy:
     tau, d,  w, lam, mu, root = 0.5, 3, 1, 0.5, 0.5, 1
+else:
+    tau, d,  w, lam, mu, root = 0.5, 1, 1, 0.5, 0.5, 1   
 
 hyper = [tau, d, w, lam, mu, root]
-
 prior = MinnesotaPrior(presample, hyper, p=12)
 prior.ny = len(yy)
-bvar = BayesianVAR(prior, data['1993':'2007-06'][yy])
+bvar = BayesianVAR(prior, data['1993-10':'2007-06'][yy])
 
+
+#------------------------------------------------------------ 
 
 yest, xest = bvar.yest, bvar.xest
 ydum, xdum = prior.get_pseudo_obs()
@@ -44,14 +59,14 @@ omega = xest.T.dot(xest)
 muphi = phihatT
 
 
-ndraws = 2000
-#phis, sigmas = prior.rvs(size=ndraws, flatten_output=False)
-phis, sigmas = bvar.sample(nsim=ndraws, flatten_output=False)
+ndraws = 12000
 
+
+phis, sigmas = bvar.sample(nsim=10, flatten_output=False)
 npara = phis[0].size + sigmas[0].size + 1
 priorsim = np.zeros((ndraws, npara))
 
-#from dsge.OtherPriors import InvGamma
+
 
 from tqdm import tqdm
 from scipy.stats import norm, uniform
@@ -67,7 +82,6 @@ for i in tqdm(range(ndraws)):
     A0 = np.linalg.inv(sigma_tr).T.dot(q)
     Ap = phis[i].dot(A0)
     beta = 0.1*norm.rvs()
-    #sigma = InvGamma(0.02, 2.0).rvs()
 
     priorsim[i] = np.r_[A0.flatten(order='F'), 
                         Ap.flatten(order='F'), 
@@ -76,22 +90,23 @@ for i in tqdm(range(ndraws)):
 
 
 
-#tau, d,  w, lam, mu, root = 0.5, 1, 1, 0.5, 0.5, 1
+#
 
 #------------------------------------------------------------ 
 ny = len(yy)
-restriction = np.ones((ny,ny), dtype=bool)
+
 hyper = np.ones((7,))
-ei = SimsZhaSVARPrior(data['1990':'1993'][yy], hyper, p=12, restriction=restriction)
+
+ei = SimsZhaSVARPrior(data['1990':'1993'][yy], hyper, p=12,
+                      restriction=np.ones((ny,ny), dtype=bool))
 ei.nA = restriction.shape[0]**2
 ei.nF = ei.ny**2*ei.p + ei.ny
 ei.name = 'ei'
 ei.T = data['1993':'2007-06'][yy].shape[0]
-ei.phistar_file = '_fortress_tmp/phistar.txt'
-ei.iw_Psi_file = '_fortress_tmp/iw_Psi.txt'
-ei.Omega_inv_file = '_fortress_tmp/Omega_inv.txt'
+ei.phistar_file = output_dir + '/phistar.txt'
+ei.iw_Psi_file =  output_dir + '/iw_Psi.txt'
+ei.Omega_inv_file = output_dir + '/Omega_inv.txt'
 ei.nu = nu
-
 
 if signu is 'fixed':
     ei.signu = '0.04_wp'
@@ -118,22 +133,19 @@ varfile = varfile.format(datafile='data.txt', proxyfile='proxy.txt',
 smc = make_smc(varfile, other_files={'data.txt': data['1993':'2007-06'][yy].values,
                                      'proxy.txt': proxy.values})
 
-np.savetxt('_fortress_tmp/priordraws.txt', priorsim)
-np.savetxt('_fortress_tmp/phistar.txt', phihatT.flatten(order='F'))
-np.savetxt('_fortress_tmp/iw_Psi.txt', S)
-np.savetxt('_fortress_tmp/Omega_inv.txt', np.linalg.inv(omega))
+np.savetxt(output_dir + '/priordraws.txt', priorsim)
+np.savetxt(output_dir + '/phistar.txt', phihatT.flatten(order='F'))
+np.savetxt(output_dir + '/iw_Psi.txt', S)
+np.savetxt(output_dir + '/Omega_inv.txt', np.linalg.inv(omega))
 
 
-smc.run(npart=1000,nblocks=25,nproc=4,bend=2.7,conditional_covariance=True,
-        initial_particles='_fortress_tmp/priordraws.txt')
-# Minnesota Prior Hyperparameters
+smc.run(npart=9600, nblocks=25, nproc=4, bend=2.7,
+        conditional_covariance=True,
+        initial_particles='_fortress_tmp/priordraws.txt',
+        output_file='%s.json' % args.model)
 
-
-
-
-
-yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY']
-m = ['EGON_KUTTNER_NI']
+# yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY']
+# m = ['EGON_KUTTNER_NI']
 # ei = ExternalInstrumentsSVARPrior(data['1990':'1993'][yy], hyper, p=12, restriction=restriction,
 #                                   gamma=norm, signu=uniform)
 

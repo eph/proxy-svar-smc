@@ -1,0 +1,9 @@
+name: proxy-svar
+channels:
+  - eherbst
+  - conda-forge
+dependencies:
+  - python=3.6
+  - fortress
+  - pyvar
+  
