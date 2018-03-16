@@ -7,8 +7,7 @@ end
 YYdata = newData1.data;
 text = newData1.textdata;
 clear data textdata
-				#nDate = datenum(text(2:end,1));
-nDate = size(text{1},1);
+nDate = datenum(text(2:end,1));
 [~,i_var] = ismember(i_var_str,text(1,2:end));
 [~,i_instr] = ismember(i_var_instr,text(1,2:end));
 

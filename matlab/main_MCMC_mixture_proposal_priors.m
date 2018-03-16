@@ -14,7 +14,7 @@ acpt =0
 %------------------------------------------------------------
 % SETTINGS
 %------------------------------------------------------------
-model_vec = {'m2lev'};     % Select Model
+model_vec = {'m2levNoSp', 'm2lev'};     % Select Model
 instrList = {'EGON_KUTTNER_NI'};        % {'EGON_KUTTNER'}
 p = 12;                                 % Number of lags
 nex_ = 1;                               % Constant
@@ -66,6 +66,13 @@ for mCounter = 1:size(model_vec,2)
         nCalc = length(i_var_transf);
         i_var_str_names =  i_var_str; % Name of variables (for plots)
         varSelec = [1 2 3 4 5]; % Select variables to plot
+    elseif strcmp(mmodel, 'm2levNoSp')
+        i_var_instr = instrList;
+        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN'};
+        i_var_transf =  {};     % Variable that require additional transformations
+        nCalc = length(i_var_transf);
+        i_var_str_names =  i_var_str; % Name of variables (for plots)
+        varSelec = [1 2 3 4]; % Select variables to plot
     elseif strcmp(mmodel, 'm2lev_2yr')
         i_var_instr = instrList;
         i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'YLD0200'};
@@ -414,7 +421,7 @@ for mCounter = 1:size(model_vec,2)
             SIG(record-bburn,1) = signu;
             IRF_T    = vm_irf(F,J,ffactor,Horizon+1,n,Omega1);        
             Ltilde(record-bburn,:,:,:) = IRF_T(1:Horizon+1,:,:);
-            A0MAT(record-bburn, :, :) = A0;
+            %A0MAT(record-bburn, :, :) = A0;
             if nCalc
                 for ii = 1:length(i_transf)
                     irfCalc(record-bburn,:,ii,:) = cumsum(squeeze(IRF_T(:,i_transf(ii),:)));
