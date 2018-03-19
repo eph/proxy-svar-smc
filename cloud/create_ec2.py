@@ -6,7 +6,7 @@ instances = ec2.create_instances(ImageId='ami-d15a75c7',
                                  MinCount=1,
                                  MaxCount=1,
                                  KeyName='eph_cloud',
-                                 InstanceType='c4.8xlarge',
-                                 SubnetId='subnet-1c383520'
-)
+                                 InstanceType='c4.8xlarge')
+
+
 

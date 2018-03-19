@@ -2,7 +2,7 @@ import numpy as np
 import pandas as p
 import matplotlib.pyplot as plt
 
-from models import svar_model, data, yy, svar_model4
+from models import svar_model, yy, svar_model4
 from simulations import smc_baseline as smc
 
 from tqdm import tqdm
@@ -13,7 +13,8 @@ from helper import SMCResults
 
 #models = ['svar12_nocs_tight-mix', 'svar12_nocs_medium-mix', 'svar12_nocs_loose-mix', 
 #          'svar12_tight-mix', 'svar12_medium-mix', 'svar12_loose-mix']
-models = ['svar12_sign_cpi_loose-mix']
+#models = ['svar12_sign_cpi_loose-mix']
+
 def long_run_coefficients(A0, Ap, equation=0):
     """
     Computes the Long Run Coefficients a la Sims-Zha

@@ -1,8 +1,27 @@
 import argparse
 
+models = {'5eq': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY'],
+                      hyper=[0.5, 3, 1, 0.5, 0.5, 1],
+                      proxy='EGON_KUTTNER_NI'),
+          
+          '4eq': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PCPI'],
+                      hyper=[ 0.5, 1, 1, 0.5, 0.5, 1],
+                      proxy='EGON_KUTTNER_NI'),
+
+          '2eq': dict(yy=['FFR_SSR','IPM'],
+                      hyper=[0.5, 3, 1, 0.5, 0.5, 1],
+                      proxy='EGON_KUTTNER_NI')}
+
+
 parser = argparse.ArgumentParser(description='Estimation a model with SMC.')
 parser.add_argument('--model', help='the model to estimate', action='store',
-                    choices=['4eq', '5eq'], default='5eq')
+                    choices=models.keys(), default='5eq')
+parser.add_argument('--nsim', help='the number of particles', action='store',
+                    type=int, default=9600)
+parser.add_argument('--nproc', help='the number of processors', action='store',
+                    type=int, default=4)
+
+
                                  
 args = parser.parse_args()
 
@@ -16,37 +35,29 @@ from fortress import make_smc
 
 import sympy 
 
+          
+
+model = models[args.model]
+
 data_file = '../data/varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
 
-if args.model is '4eq':
-    yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
-elif args.model is '5eq':
-    yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
-
-presample = data['1990':'1993'][yy]
+presample = data['1990':'1993'][model['yy']]
 proxy = data['1994':'2007-06']['EGON_KUTTNER_NI']
 
 signu = 'fixed'
 
 output_dir = '_fortress_' + args.model
-print(output_dir)
+
 
 #------------------------------------------------------------
 # Prior as Posterior given VAR data
-if 'BAA_10YMOODY' in yy:
-    tau, d,  w, lam, mu, root = 0.5, 3, 1, 0.5, 0.5, 1
-else:
-    tau, d,  w, lam, mu, root = 0.5, 1, 1, 0.5, 0.5, 1   
-
-hyper = [tau, d, w, lam, mu, root]
-prior = MinnesotaPrior(presample, hyper, p=12)
-prior.ny = len(yy)
-bvar = BayesianVAR(prior, data['1993-10':'2007-06'][yy])
+prior = MinnesotaPrior(presample, model['hyper'], p=12)
+prior.ny = len(model['yy'])
+bvar = BayesianVAR(prior, data['1993':'2007-06'][model['yy']])
 
 
 #------------------------------------------------------------ 
-
 yest, xest = bvar.yest, bvar.xest
 ydum, xdum = prior.get_pseudo_obs()
 yest = np.vstack((ydum, yest))
@@ -59,7 +70,7 @@ omega = xest.T.dot(xest)
 muphi = phihatT
 
 
-ndraws = 1500
+ndraws = args.nsim+3000
 
 
 phis, sigmas = bvar.sample(nsim=10, flatten_output=False)
@@ -93,16 +104,16 @@ for i in tqdm(range(ndraws)):
 #
 
 #------------------------------------------------------------ 
-ny = len(yy)
+ny = len(model['yy'])
 
 hyper = np.ones((7,))
 restriction=np.ones((ny,ny), dtype=bool)
-ei = SimsZhaSVARPrior(data['1990':'1993'][yy], hyper, p=12,
+ei = SimsZhaSVARPrior(data['1990':'1993'][model['yy']], hyper, p=12,
                       restriction=restriction)
 ei.nA = restriction.shape[0]**2
 ei.nF = ei.ny**2*ei.p + ei.ny
 ei.name = 'ei'
-ei.T = data['1993':'2007-06'][yy].shape[0]
+ei.T = data['1993':'2007-06'][model['yy']].shape[0]
 ei.nu = nu
 
 if signu is 'fixed':
@@ -124,7 +135,7 @@ Apstr = [mat_str('F', i+1, j+1, sympy.fcode(value, source_format='free'))
 varfile = open('svar.f90', 'r').read()
 varfile = varfile.format(assign_para = '\n'.join(A0str + Apstr), **vars(ei))
 
-other_files={'data.txt': data['1993':'2007-06'][yy].values,
+other_files={'data.txt': data['1993':'2007-06'][model['yy']].values,
              'proxy.txt': proxy.values,
              'priordraws.txt': priorsim,
              'phistar.txt': phihatT.flatten(order='F'),
@@ -134,7 +145,7 @@ other_files={'data.txt': data['1993':'2007-06'][yy].values,
 smc = make_smc(varfile, other_files=other_files, output_directory=output_dir)
 
 
-smc.run(npart=1000, nblocks=25, nproc=4, bend=2.7,
+smc.run(npart=args.nsim, nblocks=25, nproc=args.nproc, bend=2.7,
         conditional_covariance=True,
         initial_particles=output_dir +'/priordraws.txt',
         output_file='%s.json' % args.model)
