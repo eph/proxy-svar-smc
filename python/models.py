@@ -4,7 +4,7 @@ import pandas as p
 
 from pyvar import DummyVarPrior, SimsZhaSVARPrior, BayesianVAR
 
-data_file = 'varData.txt'
+data_file = '../data/varData.txt'
 data = p.read_csv(data_file, delim_whitespace=True, 
                   index_col='DATES', parse_dates=True)
 

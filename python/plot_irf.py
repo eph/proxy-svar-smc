@@ -1,30 +1,27 @@
+import argparse
+
 import numpy as np
 import pandas as p
 import matplotlib.pyplot as plt
 
 import json
 
-from models import svar_model, rf_model, data, yy,  svar_model4
+from models import svar_model, rf_model, yy,  svar_model4
 # from simulations import smc_baseline as smc
 
 h = 49
 
-import sys
-# sys.path.append('/mq/home/m1eph00/projects/dsge-book/code/helper')
-# from helper import SMCResults
-
-model = 'svar12_sign_cpi_loose'
-if 'nocs' in model: 
+model = '4eq'
+if '4eq' in model: 
     svar_model = svar_model4
     yy = yy[:-1]
 if 'cpi' in model:
     yy = ['FFR_SSR', 'IPM', 'UNRATE', 'PCPI', 'BAA_10YMOODY']
 
-od = '/mq/scratch/m1eph00/proxy-svar/'
 
-results = json.loads(open('output.json').read())
+results = json.loads(open(model + '.json').read())
 
-parasim = p.DataFrame(results['output']['parasim'])
+parasim = p.DataFrame(results['posterior.162'])
 
 #parasim = smc.load_draws([0])
 # ii = parasim.postsim.argmax()
@@ -42,12 +39,12 @@ fevds = p.DataFrame()
 from tqdm import tqdm
 
 smc = {}
-smc['paranames'] = [name in parasim.columns if name.startswith('para')]
+smc['paranames'] = [name for name in parasim.columns if name.startswith('var')]
 
 nsim = parasim.shape[0]
-nsim = 1000
+
 for i in tqdm(range(nsim)):
-    A0, Ap = svar_model.para_trans(parasim[smc['paranames'][:-2]].ix[i])
+    A0, Ap = svar_model.para_trans(parasim[smc['paranames'][:]].iloc[i])
     
     # for j in range(5):
     #     if np.linalg.inv(A0).dot(A0hat[:, j])[j] > 0:
@@ -68,7 +65,7 @@ q95 = irfs.groupby(irfs.index).quantile(0.95)
 fig, ax = plt.subplots(nrows=2, ncols=3)
 axi = ax.reshape(-1)
 for i, name in enumerate(yy):
-    irf_max[name].plot(linewidth=3, ax=axi[i], color='green')
+    #irf_max[name].plot(linewidth=3, ax=axi[i], color='green')
     median[name].plot(linewidth=3, ax=axi[i], color='black')
     q05[name].plot(linewidth=3, ax=axi[i], color='red', linestyle='dashed')
     q95[name].plot(linewidth=3, ax=axi[i], color='red', linestyle='dashed')
@@ -97,7 +94,7 @@ q95 = fevds.groupby(irfs.index).quantile(0.95)
 fig, ax = plt.subplots(nrows=2, ncols=3)
 axi = ax.reshape(-1)
 for i, name in enumerate(yy):
-    fevd_max[name].plot(linewidth=3, ax=axi[i], color='green')
+    #fevd_max[name].plot(linewidth=3, ax=axi[i], color='green')
     median[name].plot(linewidth=3, ax=axi[i], color='black')
     q05[name].plot(linewidth=3, ax=axi[i], color='red', linestyle='dashed')
     q95[name].plot(linewidth=3, ax=axi[i], color='red', linestyle='dashed')
