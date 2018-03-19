@@ -2,7 +2,7 @@ import pandas as p
 import statsmodels.formula.api as smf
 
 
-data_file = '/home/eherbst/Dropbox/Bayesian-Proxy-SVAR/code/data/vardataJune7.txt'
+data_file = '../data/varData.txt'
 var_data = p.read_csv(data_file, delim_whitespace=True)
 var_data.index = p.period_range(freq='M', start='1973-01', periods=var_data.shape[0])
 
@@ -77,7 +77,7 @@ def max_aic_reg(pmax=12, *args, **kwargs):
 
 
 import numpy as np
-hmax = 48
+hmax = 18
 rescs = {}
 res = {}
 rescs_cs = {}
