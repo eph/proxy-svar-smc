@@ -77,7 +77,7 @@ def max_aic_reg(pmax=12, *args, **kwargs):
 
 
 import numpy as np
-hmax = 18
+hmax = 19
 rescs = {}
 res = {}
 rescs_cs = {}
@@ -94,7 +94,7 @@ for y in ['FFR_SSR_H','DLOGIP_H','UNRATE_H', 'DPPI_FIN_H', 'BAA_10YMOODY_H']:
 
     for h in range(1,hmax+1):
 
-        controls=['UNRATE','DLOGIP','FFR_SSR','DPPI_FIN']
+        controls=['UNRATE','DLOGIP','FFR_SSR', 'DPPI_FIN']
 
         d = to_run(p=12,controls=controls,h=h,shock='RR_SHOCK_SPREAD',y=y)
         rrcs_pred[h-1] = [d.params[-1], d.params[-1] - 1.96*d.bse[-1], d.params[-1] + 1.96*d.bse[-1]]
@@ -102,7 +102,7 @@ for y in ['FFR_SSR_H','DLOGIP_H','UNRATE_H', 'DPPI_FIN_H', 'BAA_10YMOODY_H']:
         d = to_run(p=12,controls=controls,h=h,shock='RR_SHOCK_NOSPREAD',y=y)
         rr_pred[h-1] = [d.params[-1], d.params[-1] - 1.96*d.bse[-1], d.params[-1] + 1.96*d.bse[-1]]
 
-        controls=['UNRATE','DLOGIP','FFR_SSR','DPPI_FIN','BAA_10YMOODY']
+        controls=['UNRATE', 'DLOGIP', 'DPPI_FIN', 'FFR_SSR', 'BAA_10YMOODY']
 
         d = to_run(p=12,controls=controls,h=h,shock='RR_SHOCK_SPREAD',y=y)
         rrcs_pred_cs[h-1] = [d.params[-1], d.params[-1] - 1.96*d.bse[-1], d.params[-1] + 1.96*d.bse[-1]]

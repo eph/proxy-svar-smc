@@ -62,7 +62,7 @@ contains
     !self%npara = self%nA + self%nF
     datafile = 'data.txt'
     name = '{name}'
-    call self%construct_abstract_bayesian_model(name, datafile, self%nA+self%nF, {ny}, {T})
+    call self%construct_abstract_bayesian_model(name, datafile, self%nA+self%nF+{nextra_para}, {ny}, {T})
     self%likT = self%T - self%p
 
     allocate(self%prior,source=minnesota_prior())
@@ -123,7 +123,7 @@ contains
     signu = {signu}
 
     resid(:,1) = ( self%proxy - beta*resid(:,1) ) / signu
-    l = -TT*ny/2.0*log(2.0_wp*M_PI*signu**2) - 0.5_wp*sum(resid(:,1)**2)
+    l = -TT/2.0*log(2.0_wp*M_PI*signu**2) - 0.5_wp*sum(resid(:,1)**2)
 
     
   end function lik
@@ -277,7 +277,7 @@ contains
     real(wp), intent(in) :: x(:), mu(:), chol_sigma(:,:)
     real(wp), external :: ddot
 
-    real(wp) :: logq
+    real(wp) :: logq, lds
     real(wp) :: a(size(x, 1)), det_sigma
 
     integer :: n, i
@@ -289,9 +289,9 @@ contains
     endif
 
     det_sigma = 1.0_wp
-
+    lds = 0.0_wp
     do i = 1, n
-
+       lds = lds + log(chol_sigma(i,i))
        det_sigma = det_sigma*chol_sigma(i,i)
 
     end do
@@ -299,7 +299,7 @@ contains
     a = x - mu
     call dtrsv('l','n', 'n', n, chol_sigma, n, a, 1)
 
-    logq = -n*0.5_wp*log(2.0_wp*3.14159_wp) - 0.5_wp*log(det_sigma) - 0.5*ddot(n, a, 1, a, 1)
+    logq = -n*0.5_wp*log(2.0_wp*3.14159_wp) - lds - 0.5*ddot(n, a, 1, a, 1)
 
   end function mvnormal_pdf
 
