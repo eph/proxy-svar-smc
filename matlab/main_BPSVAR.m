@@ -14,14 +14,14 @@ acpt =0
 %------------------------------------------------------------
 % SETTINGS
 %------------------------------------------------------------
-model_vec = {'m2levNoSp', 'm2lev'};     % Select Model
-instrList = {'EGON_KUTTNER_NI'};        % {'EGON_KUTTNER'}
+model_vec = {'4eq', '5eq'};             % Select Model
+instrList = {'MHF'};
 p = 12;                                 % Number of lags
 nex_ = 1;                               % Constant
 Horizon = 48;                           % Horizon for calculation of impulse responses
 MP = 0;                                 % Tightness of the Minnesota Prior (0: loose; 1: tight)
 T0 = p+36;                              % Length of pre-sample for Minnesota Prior
-nd = 10000;                             % Number of draws in MC chain
+nd = 50000;                             % Number of draws in MC chain
 bburn = 0.1*nd;                         % Burn-in period
 fflagFEVD = 0;                          % Compute FEVD
 printFig = 1;                           % Save Figures in PDF
@@ -34,7 +34,7 @@ str_iv_init     = '1994-01-01';         % Starting date of the sample for the pr
 ptileVEC = [0.05 0.16 0.50 0.86 0.95]; % Percentiles
 
 %------------------------------------------------------------
-% PRIOR SELECTION -- SIGMA, BETA
+% PRIOR SELECTION -- SIGMA_NU
 % IG - Inverse Gamma
 % FI - Truncated at pr_trunc x std(M_t)
 %------------------------------------------------------------
@@ -42,7 +42,7 @@ prior_type = 'IG';
 pr_trunc = 0.5;                      % only used for FIXED
 
 mu0 = 0.00;                             % prior mean
-V0 = 0.1;                             % prior variance
+V0 = 0.1^2;                             % prior variance
 
 s0 = 0.02;
 nu0 = 2.00;
@@ -59,16 +59,16 @@ nu = rwmh_df;                           % Tune-up parameter for mixture proposal
 %---------------------------------------------------------------------
 for mCounter = 1:size(model_vec,2)
     mmodel = model_vec(:,mCounter);
-    if strcmp(mmodel, 'm2lev')
+    if strcmp(mmodel, '5eq')
         i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY'};
+        i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'LPPI', 'BAA10YMOODY'};
         i_var_transf =  {};     % Variable that require additional transformations
         nCalc = length(i_var_transf);
         i_var_str_names =  i_var_str; % Name of variables (for plots)
         varSelec = [1 2 3 4 5]; % Select variables to plot
-    elseif strcmp(mmodel, 'm2levNoSp')
+    elseif strcmp(mmodel, '4eq')
         i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN'};
+        i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'LPPI'};
         i_var_transf =  {};     % Variable that require additional transformations
         nCalc = length(i_var_transf);
         i_var_str_names =  i_var_str; % Name of variables (for plots)
@@ -105,7 +105,7 @@ for mCounter = 1:size(model_vec,2)
 
     nlags_ = p;
 
-    data_file = 'vardata_extended';
+    data_file = '/mq/DSGE/research/MPpremia/missPaper/AEJreplication/DATA/CHdata.txt';
     data_spreadsheet = 'Sheet1';
 
     %-------------------------------------------
@@ -161,7 +161,7 @@ for mCounter = 1:size(model_vec,2)
     % set preliminaries for priors
     N0=zeros(size(X',1),size(X,2));
     nnu0=0;
-    nnuT = T +nnu0;
+    nnuT = T - n*p -nex_;%# +nnu0;
     NT = N0 + X'*X;    
     Bbar0=B;
     S0=Sigmau;
@@ -227,7 +227,8 @@ for mCounter = 1:size(model_vec,2)
     REL = zeros(nd-bburn,1);
     BET = zeros(nd-bburn,1);
     SIG = zeros(nd-bburn,1);
-    A0 = zeros(nd-bburn,5, 5);
+    A0MAT = zeros(nd-bburn, n, n);
+    ApMAT = zeros(nd-bburn, n*p+nex, n);
     while record<nd
 
         %------------------------------------------------------------
@@ -372,6 +373,7 @@ for mCounter = 1:size(model_vec,2)
             A0 = A0chol*Q;
             Aplus = Bdraw(1:n*p,:)*A0;
 
+
             % Compute cumulative coefficients 
             a0 = A0(:,1);
             for l=1:p
@@ -421,7 +423,7 @@ for mCounter = 1:size(model_vec,2)
             SIG(record-bburn,1) = signu;
             IRF_T    = vm_irf(F,J,ffactor,Horizon+1,n,Omega1);        
             Ltilde(record-bburn,:,:,:) = IRF_T(1:Horizon+1,:,:);
-            %A0MAT(record-bburn, :, :) = A0;
+
             if nCalc
                 for ii = 1:length(i_transf)
                     irfCalc(record-bburn,:,ii,:) = cumsum(squeeze(IRF_T(:,i_transf(ii),:)));
@@ -462,6 +464,7 @@ for mCounter = 1:size(model_vec,2)
     SVAR.mmodel = mmodel;
     SVAR.pr_trunc = 0
     SVAR.pr_truncFlag = 0;
+
 
     SVAR.printFig = printFig;
     SVAR.i_var_instr = i_var_instr;

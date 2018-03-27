@@ -116,14 +116,21 @@ contains
     end associate
        
 
+    ! ! zero out financial shock
+    ! A(2,3:5) = 0.0_wp
+    ! A(3,4:5) = 0.0_WP
+    ! A(4,5) = 0.0_wp
+
     call dgemm('n','n',TT,ny,ny,1.0_wp,self%YY_lik,TT,A,ny,0.0_wp,resid,TT)
     call dgemm('n','n',TT,ny,ny*p+constant,-1.0_wp,self%XX_lik,TT,F,ny*p+constant,1.0_wp,resid,TT)
 
     beta = para(self%nA+self%nF+1)
     signu = {signu}
 
+
+
     resid(:,1) = ( self%proxy - beta*resid(:,1) ) / signu
-    l = -TT/2.0*log(2.0_wp*M_PI*signu**2) - 0.5_wp*sum(resid(:,1)**2)
+    l = -TT/2.0_wp*log(2.0_wp*M_PI*signu**2) - 0.5_wp*sum(resid(:,1)**2)
 
     
   end function lik
@@ -190,6 +197,11 @@ contains
     lpdf = lpdf + lognorpdf(para(self%nA+self%nF+1), 0.0_wp, 0.1_wp)
 
     if (self%npara==self%nA+self%nF+2) then
+       if (para(self%nA+self%nF+2) < 0.0_wp) then
+          lpdf = -100000000000.0_wp
+          return
+       end if
+
        lpdf = lpdf + logigpdf(para(self%nA+self%nF+2), 0.02_wp, 2.0_wp)
     end if
 

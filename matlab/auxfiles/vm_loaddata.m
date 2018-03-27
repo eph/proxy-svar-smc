@@ -1,4 +1,4 @@
-newData1 = importdata(strcat(data_file,'.txt'),',');
+newData1 = importdata(data_file);
 % Create new variables in the base workspace from those fields.
 vars = fieldnames(newData1);
 for i = 1:length(vars)

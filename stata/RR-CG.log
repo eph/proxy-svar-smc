@@ -1,0 +1,522 @@
+
+.       mata: mata set matafavor speed;
+
+.            /* Read-in the data: */
+>      use RR-CG-data.dta, clear;
+
+.      gen tm = ym(year,month);
+(67 missing values generated)
+
+.           ////////////////////////////////////////
+>      // Regression described in Equation (16)
+>      // Table (3)
+>      ///////////////////////////////////////
+> 
+>      // First Column (no corporate credit spreads)    
+>      ivreg2 dtarg oldtarg graym gray0 gray1 gray2 igrym igry0 igry1
+>      igry2 gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0, r bw(auto) small;
+Warning: time variable mtgdatenum has 107 gap(s) in relevant range
+
+OLS estimation
+--------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and autocorrelation
+  kernel=Bartlett; bandwidth=48
+  Automatic bw selection according to Newey-West (1994)
+  time variable (t):  mtgdatenum
+
+                                                      Number of obs =      108
+                                                      F( 18,    89) =    14.03
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  5.119791667                Centered R2   =   0.6533
+Total (uncentered) SS   =         5.25                Uncentered R2 =   0.6619
+Residual SS             =  1.774849393                Root MSE      =    .1412
+
+------------------------------------------------------------------------------
+             |               Robust
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     oldtarg |  -.0786702   .0194631    -4.04   0.000    -.1173428   -.0399975
+       graym |   .0287318   .0112638     2.55   0.012      .006351    .0511127
+       gray0 |   .0913925   .0215937     4.23   0.000     .0484863    .1342986
+       gray1 |  -.0165008   .0260679    -0.63   0.528    -.0682972    .0352956
+       gray2 |  -.0175579   .0237559    -0.74   0.462    -.0647604    .0296446
+       igrym |  -.0279136   .0200873    -1.39   0.168    -.0678266    .0119994
+       igry0 |   .0220042    .028176     0.78   0.437    -.0339809    .0779893
+       igry1 |   .0005923    .032158     0.02   0.985     -.063305    .0644896
+       igry2 |   .0467324   .0413947     1.13   0.262    -.0355181    .1289828
+       gradm |   .0226838    .022043     1.03   0.306    -.0211153    .0664828
+       grad0 |    .064525   .0250563     2.58   0.012     .0147387    .1143113
+       grad1 |   .0346736   .0728954     0.48   0.635    -.1101679    .1795152
+       grad2 |   .1304097      .0672     1.94   0.055    -.0031152    .2639346
+       igrdm |  -.0104669   .0329488    -0.32   0.751    -.0759355    .0550016
+       igrd0 |  -.0903997   .0302863    -2.98   0.004    -.1505779   -.0302216
+       igrd1 |   .0725393   .0865731     0.84   0.404    -.0994797    .2445582
+       igrd2 |  -.0671257   .1227747    -0.55   0.586    -.3110764     .176825
+       grau0 |  -.0639049   .0357053    -1.79   0.077    -.1348506    .0070407
+       _cons |  -.0345194    .200247    -0.17   0.864    -.4324059    .3633671
+------------------------------------------------------------------------------
+Included instruments: oldtarg graym gray0 gray1 gray2 igrym igry0 igry1 igry2
+                      gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0
+------------------------------------------------------------------------------
+
+.                  // Output Growth
+>      lincom graym+gray0+gray1+gray2;
+
+ ( 1)  graym + gray0 + gray1 + gray2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .0860656   .0174734     4.93   0.000     .0513463     .120785
+------------------------------------------------------------------------------
+
+.       // Inflation
+>      lincom gradm+grad0+grad1+grad2;
+
+ ( 1)  gradm + grad0 + grad1 + grad2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .2522921     .04502     5.60   0.000     .1628383     .341746
+------------------------------------------------------------------------------
+
+.       // Output Growth Revision
+>      lincom igrym+igry0+igry1+igry2;
+
+ ( 1)  igrym + igry0 + igry1 + igry2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .0414153   .0391539     1.06   0.293    -.0363827    .1192133
+------------------------------------------------------------------------------
+
+.       //Inflation Revision
+>      lincom igrdm+igrd0+igrd1+igrd2;
+
+ ( 1)  igrdm + igrd0 + igrd1 + igrd2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |  -.0954531   .0885472    -1.08   0.284    -.2713944    .0804883
+------------------------------------------------------------------------------
+
+.            reg dtarg oldtarg graym gray0 gray1 gray2 igrym igry0 igry1 igry2
+>          gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0, b noheader notable;
+
+.          fitstat;
+
+Measures of Fit for regress of dtarg
+
+Log-Lik Intercept Only:         11.402   Log-Lik Full Model:             68.609
+D(89):                        -137.218   LR(18):                        114.415
+                                         Prob > LR:                       0.000
+R2:                              0.653   Adjusted R2:                     0.583
+AIC:                            -0.919   AIC*n:                         -99.218
+BIC:                          -553.928   BIC':                          -30.137
+BIC used by Stata:             -48.258   AIC used by Stata:             -99.218
+
+.            //Store residuals
+>      cap drop res_*;
+
+.      local res_count = 1;
+
+.      predict double res_`res_count', residuals;
+(121 missing values generated)
+
+.      local ++res_count;
+
+.            // Second Column (with corporate credit spreads)    
+>      ivreg2 dtarg oldtarg graym gray0 gray1 gray2 igrym igry0 igry1
+>      igry2 gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0 baa_yld1000_avg5d, r bw(auto) small;
+Warning: time variable mtgdatenum has 107 gap(s) in relevant range
+
+OLS estimation
+--------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and autocorrelation
+  kernel=Bartlett; bandwidth=48
+  Automatic bw selection according to Newey-West (1994)
+  time variable (t):  mtgdatenum
+
+                                                      Number of obs =      108
+                                                      F( 19,    88) =    15.06
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  5.119791667                Centered R2   =   0.6763
+Total (uncentered) SS   =         5.25                Uncentered R2 =   0.6843
+Residual SS             =  1.657516281                Root MSE      =    .1372
+
+-----------------------------------------------------------------------------------
+                  |               Robust
+            dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+------------------+----------------------------------------------------------------
+          oldtarg |  -.0892962   .0195761    -4.56   0.000    -.1281995   -.0503929
+            graym |   .0229394   .0111846     2.05   0.043     .0007123    .0451665
+            gray0 |   .0807969   .0219322     3.68   0.000     .0372112    .1243826
+            gray1 |  -.0186067   .0249129    -0.75   0.457    -.0681159    .0309025
+            gray2 |  -.0085585   .0231186    -0.37   0.712    -.0545019    .0373849
+            igrym |  -.0273588   .0190487    -1.44   0.154    -.0652141    .0104966
+            igry0 |   .0174546   .0259089     0.67   0.502    -.0340338     .068943
+            igry1 |  -.0055182   .0316339    -0.17   0.862    -.0683839    .0573475
+            igry2 |    .031731   .0432218     0.73   0.465    -.0541633    .1176253
+            gradm |   .0110279   .0223423     0.49   0.623    -.0333727    .0554285
+            grad0 |    .057839   .0256139     2.26   0.026     .0069366    .1087413
+            grad1 |   .0341305   .0701874     0.49   0.628    -.1053522    .1736132
+            grad2 |   .1083818    .066754     1.62   0.108    -.0242778    .2410415
+            igrdm |  -.0171745   .0326706    -0.53   0.600    -.0821006    .0477515
+            igrd0 |  -.0869352   .0291002    -2.99   0.004    -.1447657   -.0291046
+            igrd1 |   .0613483   .0846058     0.73   0.470    -.1067879    .2294846
+            igrd2 |  -.0343956   .1259696    -0.27   0.785    -.2847338    .2159425
+            grau0 |  -.0865552    .036191    -2.39   0.019    -.1584773   -.0146331
+baa_yld1000_avg5d |  -.1138321   .0498223    -2.28   0.025    -.2128434   -.0148208
+            _cons |   .4495353   .2867369     1.57   0.121    -.1202941    1.019365
+-----------------------------------------------------------------------------------
+Included instruments: oldtarg graym gray0 gray1 gray2 igrym igry0 igry1 igry2
+                      gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0
+                      baa_yld1000_avg5d
+------------------------------------------------------------------------------
+
+.            // Output Growth
+>      lincom graym+gray0+gray1+gray2;
+
+ ( 1)  graym + gray0 + gray1 + gray2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |    .076571   .0188072     4.07   0.000     .0391955    .1139464
+------------------------------------------------------------------------------
+
+.       // Inflation
+>      lincom gradm+grad0+grad1+grad2;
+
+ ( 1)  gradm + grad0 + grad1 + grad2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .2113792   .0490251     4.31   0.000     .1139521    .3088064
+------------------------------------------------------------------------------
+
+.       // Output Growth Revision
+>      lincom igrym+igry0+igry1+igry2;
+
+ ( 1)  igrym + igry0 + igry1 + igry2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .0163085   .0413232     0.39   0.694    -.0658126    .0984296
+------------------------------------------------------------------------------
+
+.       //Inflation Revision
+>      lincom igrdm+igrd0+igrd1+igrd2;
+
+ ( 1)  igrdm + igrd0 + igrd1 + igrd2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   -.077157    .086885    -0.89   0.377    -.2498227    .0955088
+------------------------------------------------------------------------------
+
+.            reg dtarg oldtarg graym gray0 gray1 gray2 igrym igry0
+>      igry1 igry2 gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0 baa_yld1000_avg5d, noheader notable b;
+
+.      fitstat;
+
+Measures of Fit for regress of dtarg
+
+Log-Lik Intercept Only:         11.402   Log-Lik Full Model:             72.302
+D(88):                        -144.605   LR(19):                        121.802
+                                         Prob > LR:                       0.000
+R2:                              0.676   Adjusted R2:                     0.606
+AIC:                            -0.969   AIC*n:                        -104.605
+BIC:                          -556.632   BIC':                          -32.841
+BIC used by Stata:             -50.962   AIC used by Stata:            -104.605
+
+.      //Store residuals
+>      predict double res_`res_count' , residuals;
+(121 missing values generated)
+
+.      local ++res_count;
+
+.      // Robustness (with average corporate credit spreads calculated from the first day of the month when the FOMC
+>      // meeting takes place to the day prior to the meeting.)
+> 
+>      ivreg2 dtarg oldtarg graym gray0 gray1 gray2 igrym igry0 igry1
+>      igry2 gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0 baa_yld1000_avg1st, r bw(auto) small;
+Warning: time variable mtgdatenum has 107 gap(s) in relevant range
+
+OLS estimation
+--------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and autocorrelation
+  kernel=Bartlett; bandwidth=48
+  Automatic bw selection according to Newey-West (1994)
+  time variable (t):  mtgdatenum
+
+                                                      Number of obs =      108
+                                                      F( 19,    88) =    15.13
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  5.119791667                Centered R2   =   0.6758
+Total (uncentered) SS   =         5.25                Uncentered R2 =   0.6839
+Residual SS             =  1.659683389                Root MSE      =    .1373
+
+------------------------------------------------------------------------------------
+                   |               Robust
+             dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------------+----------------------------------------------------------------
+           oldtarg |  -.0891987   .0195718    -4.56   0.000    -.1280935   -.0503039
+             graym |    .022978   .0111647     2.06   0.043     .0007906    .0451654
+             gray0 |   .0808058   .0219324     3.68   0.000     .0372198    .1243919
+             gray1 |  -.0189412   .0250436    -0.76   0.451    -.0687102    .0308278
+             gray2 |  -.0078538   .0233406    -0.34   0.737    -.0542383    .0385307
+             igrym |  -.0275407   .0190946    -1.44   0.153    -.0654871    .0104057
+             igry0 |   .0168164   .0261101     0.64   0.521     -.035072    .0687048
+             igry1 |  -.0057507    .031529    -0.18   0.856    -.0684079    .0569066
+             igry2 |   .0316914   .0432008     0.73   0.465     -.054161    .1175439
+             gradm |   .0115394   .0222042     0.52   0.605    -.0325867    .0556655
+             grad0 |   .0570428   .0256747     2.22   0.029     .0060198    .1080658
+             grad1 |   .0369368   .0701997     0.53   0.600    -.1025703     .176444
+             grad2 |   .1069851   .0670453     1.60   0.114    -.0262533    .2402235
+             igrdm |  -.0172101    .032744    -0.53   0.600    -.0822819    .0478616
+             igrd0 |  -.0871105   .0291246    -2.99   0.004    -.1449895   -.0292316
+             igrd1 |   .0580843   .0847925     0.69   0.495     -.110423    .2265917
+             igrd2 |  -.0319672   .1262338    -0.25   0.801    -.2828304     .218896
+             grau0 |  -.0862492   .0363992    -2.37   0.020     -.158585   -.0139135
+baa_yld1000_avg1st |  -.1149848   .0498393    -2.31   0.023    -.2140299   -.0159396
+             _cons |   .4462547   .2853249     1.56   0.121    -.1207686    1.013278
+------------------------------------------------------------------------------------
+Included instruments: oldtarg graym gray0 gray1 gray2 igrym igry0 igry1 igry2
+                      gradm grad0 grad1 grad2 igrdm igrd0 igrd1 igrd2 grau0
+                      baa_yld1000_avg1st
+------------------------------------------------------------------------------
+
+.            // Output Growth
+>      lincom graym+gray0+gray1+gray2;
+
+ ( 1)  graym + gray0 + gray1 + gray2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .0769889   .0186723     4.12   0.000     .0398816    .1140962
+------------------------------------------------------------------------------
+
+.       // Inflation
+>      lincom gradm+grad0+grad1+grad2;
+
+ ( 1)  gradm + grad0 + grad1 + grad2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .2125041   .0487092     4.36   0.000     .1157048    .3093034
+------------------------------------------------------------------------------
+
+.       // Output Growth Revision
+>      lincom igrym+igry0+igry1+igry2;
+
+ ( 1)  igrym + igry0 + igry1 + igry2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .0152164   .0414061     0.37   0.714    -.0670696    .0975024
+------------------------------------------------------------------------------
+
+.       //Inflation Revision
+>      lincom igrdm+igrd0+igrd1+igrd2;
+
+ ( 1)  igrdm + igrd0 + igrd1 + igrd2 = 0
+
+------------------------------------------------------------------------------
+       dtarg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |  -.0782035   .0871583    -0.90   0.372    -.2514123    .0950052
+------------------------------------------------------------------------------
+
+.            ////////////////////////////////////////
+>      // Regression described in Equation (18)
+>      // Table (5)
+>      ///////////////////////////////////////
+> 
+>      // First Column (no corporate credit spreads)    
+>      ivreg2 ffr_cg avggrad12 ygap0 gray0 ffr_cg_l1 ffr_cg_l2, r bw(auto) small;
+Warning: time variable mtgdatenum has 107 gap(s) in relevant range
+
+OLS estimation
+--------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and autocorrelation
+  kernel=Bartlett; bandwidth=48
+  Automatic bw selection according to Newey-West (1994)
+  time variable (t):  mtgdatenum
+
+                                                      Number of obs =      108
+                                                      F(  5,   102) =  4299.34
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  332.4217303                Centered R2   =   0.9909
+Total (uncentered) SS   =  2227.265625                Uncentered R2 =   0.9986
+Residual SS             =  3.037484146                Root MSE      =    .1726
+
+------------------------------------------------------------------------------
+             |               Robust
+      ffr_cg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   avggrad12 |   .2635097   .0546025     4.83   0.000      .155206    .3718134
+       ygap0 |   .0664163   .0247841     2.68   0.009     .0172573    .1155754
+       gray0 |   .0791871    .020721     3.82   0.000      .038087    .1202872
+   ffr_cg_l1 |   1.088085   .1095248     9.93   0.000     .8708434    1.305327
+   ffr_cg_l2 |  -.1967957     .11533    -1.71   0.091    -.4255522    .0319607
+       _cons |  -.2594379   .1344149    -1.93   0.056    -.5260492    .0071734
+------------------------------------------------------------------------------
+Included instruments: avggrad12 ygap0 gray0 ffr_cg_l1 ffr_cg_l2
+------------------------------------------------------------------------------
+
+.      //Interest Rate Smoothing
+>      lincom ffr_cg_l1+ffr_cg_l2;
+
+ ( 1)  ffr_cg_l1 + ffr_cg_l2 = 0
+
+------------------------------------------------------------------------------
+      ffr_cg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8912896   .0294175    30.30   0.000     .8329402    .9496391
+------------------------------------------------------------------------------
+
+.      reg ffr_cg avggrad12 gray0 ygap0 ffr_cg_l1 ffr_cg_l2, b noheader notable;
+
+.      fitstat;
+
+Measures of Fit for regress of ffr_cg
+
+Log-Lik Intercept Only:       -213.956   Log-Lik Full Model:             39.594
+D(102):                        -79.188   LR(5):                         507.100
+                                         Prob > LR:                       0.000
+R2:                              0.991   Adjusted R2:                     0.990
+AIC:                            -0.622   AIC*n:                         -67.188
+BIC:                          -556.766   BIC':                         -483.690
+BIC used by Stata:             -51.095   AIC used by Stata:             -67.188
+
+.      //Store residuals
+>      predict double res_`res_count' , residuals;
+(121 missing values generated)
+
+.      local ++res_count;
+
+.      // Second Column (with corporate credit spreads)    
+> 
+>      ivreg2 ffr_cg baa_yld1000_avg5d  avggrad12 gray0 ygap0 ffr_cg_l1 ffr_cg_l2, r bw(auto) small;
+Warning: time variable mtgdatenum has 107 gap(s) in relevant range
+
+OLS estimation
+--------------
+
+Estimates efficient for homoskedasticity only
+Statistics robust to heteroskedasticity and autocorrelation
+  kernel=Bartlett; bandwidth=48
+  Automatic bw selection according to Newey-West (1994)
+  time variable (t):  mtgdatenum
+
+                                                      Number of obs =      108
+                                                      F(  6,   101) =  3376.65
+                                                      Prob > F      =   0.0000
+Total (centered) SS     =  332.4217303                Centered R2   =   0.9917
+Total (uncentered) SS   =  2227.265625                Uncentered R2 =   0.9988
+Residual SS             =  2.774117837                Root MSE      =    .1657
+
+-----------------------------------------------------------------------------------
+                  |               Robust
+           ffr_cg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+------------------+----------------------------------------------------------------
+baa_yld1000_avg5d |   -.149083   .0538023    -2.77   0.007    -.2558123   -.0423537
+        avggrad12 |   .2135669   .0500297     4.27   0.000     .1143215    .3128124
+            gray0 |   .0614779   .0200953     3.06   0.003     .0216143    .1013416
+            ygap0 |    .072782   .0238456     3.05   0.003     .0254787    .1200853
+        ffr_cg_l1 |   1.034315   .1109287     9.32   0.000     .8142626    1.254368
+        ffr_cg_l2 |  -.1558169   .1138872    -1.37   0.174    -.3817385    .0701047
+            _cons |   .2220928   .2022082     1.10   0.275    -.1790339    .6232195
+-----------------------------------------------------------------------------------
+Included instruments: baa_yld1000_avg5d avggrad12 gray0 ygap0 ffr_cg_l1
+                      ffr_cg_l2
+------------------------------------------------------------------------------
+
+.      //Interest Rate Smoothing
+>      lincom ffr_cg_l1+ffr_cg_l2;
+
+ ( 1)  ffr_cg_l1 + ffr_cg_l2 = 0
+
+------------------------------------------------------------------------------
+      ffr_cg |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8784984   .0291505    30.14   0.000     .8206716    .9363252
+------------------------------------------------------------------------------
+
+.      reg ffr_cg baa_yld1000_avg5d avggrad12 gray0 ygap0 ffr_cg_l1 ffr_cg_l2, b noheader notable;
+
+.      fitstat;
+
+Measures of Fit for regress of ffr_cg
+
+Log-Lik Intercept Only:       -213.956   Log-Lik Full Model:             44.492
+D(101):                        -88.984   LR(6):                         516.896
+                                         Prob > LR:                       0.000
+R2:                              0.992   Adjusted R2:                     0.991
+AIC:                            -0.694   AIC*n:                         -74.984
+BIC:                          -561.879   BIC':                         -488.803
+BIC used by Stata:             -56.209   AIC used by Stata:             -74.984
+
+.      predict double res_`res_count' , residuals;
+(121 missing values generated)
+
+.      local ++res_count;
+
+.      local res_count = `res_count' - 1;
+
+.      forvalue i = 1/`res_count' {;
+  2.              replace res_`i' = 0 if res_`i' ==.;
+  3.      };
+(121 real changes made)
+(121 real changes made)
+(121 real changes made)
+(121 real changes made)
+
+.      tostring month year, replace;
+month was float now str2
+year was float now str4
+
+.      gen day = "01";
+
+.      gen export_date = month + "/" + day + "/" + year;
+
+.      destring month year, replace;
+month: all characters numeric; replaced as byte
+(67 missing values generated)
+year: all characters numeric; replaced as int
+(67 missing values generated)
+
+.      sort day year  month ;
+
+.      keep res_* export_date;
+
+.      order export_date;
+
+.      export     delimited using "RR-CG-residuals", replace;
+(note: file RR-CG-residuals.csv not found)
+file RR-CG-residuals.csv saved
+
+.            drop res_*;
+
+. 
+end of do-file
+
+. exit, clear

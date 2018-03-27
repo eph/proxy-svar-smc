@@ -32,7 +32,7 @@ ext_T0  = 0;                           % I don't know why people set up this
                                        % prior like thisni
 
 if MP ==0
-    if strcmp(mmodel, 'm2levNoSp')
+    if strcmp(mmodel, '4eq')
         tau	   =   0.5; 
         d	   =   1;
         w	   =   1;

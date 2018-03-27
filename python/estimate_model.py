@@ -11,7 +11,7 @@ from fortress import make_smc
 import sympy  
 
 
-from models import models, InvGamma, data
+from models import models as models, InvGamma, data as data
           
 
 parser = argparse.ArgumentParser(description='Estimation a model with SMC.')
@@ -35,20 +35,30 @@ proxy = data['1994':'2007-06'][model['proxy']]
 
 if 'tight' in args.model:
     signu = 'fixed'
-    nextra_para = 1
+    nextra_para = 2
 else:
     signu = 'estimated'
     nextra_para = 2
 
 
 
-
 #------------------------------------------------------------
 # Prior as Posterior given VAR data
+presample_moments = [presample.mean(), presample.std()]
+
+
+if 'RR' in args.model:
+    data['MRR'] = data['MRR'].cumsum()
+    data['MRRCS'] = data['MRRCS'].cumsum()
+    presample_moments[0][-1] = 0.0
+    presample_moments[1][-1] = 0.25
+
 prior = MinnesotaPrior([], model['hyper'], p=12, 
-                       presample_moments = [presample.mean(), presample.std()])
+                       presample_moments=presample_moments)
+                                        
+
 prior.ny = len(model['yy'])
-bvar = BayesianVAR(prior, data['1993':'2007-06'][model['yy']])
+bvar = BayesianVAR(prior, data['1993':'2007-06'][model['yy']].fillna(0.0))
 
 
 #------------------------------------------------------------ 
@@ -63,7 +73,7 @@ nu = yest.shape[0] - bvar._p * bvar._ny - bvar._cons*1
 omega = xest.T.dot(xest)
 muphi = phihatT
 
-ndraws = args.nsim*2
+ndraws = args.nsim
 
 
 phis, sigmas = bvar.sample(nsim=10, flatten_output=False)
@@ -77,7 +87,6 @@ from scipy.linalg import qr, cholesky
 phis, sigmas = bvar.sample(nsim=ndraws, flatten_output=False)
 
 
-j = 0
 for i in tqdm(range(ndraws)):
 
     sigma_tr = cholesky(sigmas[i], lower=True)
@@ -90,27 +99,20 @@ for i in tqdm(range(ndraws)):
     A0 = np.linalg.inv(sigma_tr).T.dot(q)
     Ap = phis[i].dot(A0)
     beta = 0.1*norm.rvs()
-
   
     u = bvar.yest @ A0 - bvar.xest @ Ap
     eta = proxy - beta*u[:, 0]
     if signu is 'fixed':
-        s = 0.04;
+        s = 0.5*proxy.std()
     else:
         s = InvGamma(0.02, 2).rvs()
 
-    lpdf = norm(scale=s).logpdf(eta).sum()
-  
-    priorsim[j] = np.r_[A0.flatten(order='F'), 
-                            Ap.flatten(order='F'), 
-                            beta, 
-                            s]
-    j += 1
+    priorsim[i] = np.r_[A0.flatten(order='F'), 
+                        Ap.flatten(order='F'), 
+                        beta, 
+                        s]
 
 
-priorsim = priorsim[:j]
-if j < args.nsim:
-    print('couldnt get enough', j)
 
 
 if 'cholesky' in args.model:
@@ -124,7 +126,8 @@ else:
      
     hyper = np.ones((7,))
     restriction=np.ones((ny,ny), dtype=bool)
-    ei = SimsZhaSVARPrior(data['1990':'1993'][model['yy']], hyper, p=12,
+    # data['1990':'1993'][model['yy']]
+    ei = SimsZhaSVARPrior(np.random.rand(100, ny), hyper, p=12,
                           restriction=restriction)
     ei.nA = restriction.shape[0]**2
     ei.nF = ei.ny**2*ei.p + ei.ny
@@ -133,10 +136,11 @@ else:
     ei.nu = nu
      
     if signu is 'fixed':
-        ei.signu = '0.04_wp'
-        ei.nextra_para = 1
+        ei.signu = '%f_wp' % (0.5*proxy.std())
+        print(ei.signu)
+        ei.nextra_para = 2
     else:
-        ei.signu = '0.04_wp'
+        ei.signu = 'para(self%nA+self%nF+2)'
         ei.nextra_para = 2
     x = sympy.symbols(['para({:d})'.format(i+1) for i in range(ei.nA+ei.nF)],
                       positive=True)

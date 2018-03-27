@@ -1,4 +1,7 @@
 *.json
 *.mat
 *.pyc
+*.pdf
 fortran_rf_garbage/*
+python/slurm/*
+python/_fortress*
