@@ -12,22 +12,21 @@ clc;
 addpath('results')
 addpath('auxfiles')
 printFig = 0;
-model_vec = {'Chol_5eq'};
+model_vec = {'Chol_4eq'};
 nd = 5000;        % Number of draws in MC chain         
 instrList = {'MHF'};
-% instrList = {'DTREAS03M_N_NI','EGON_KUTTNER','DTREAS02Y_N_NI'};
-% instrList = {'GSS_TARGET_94_07_NI','GSS_PATH_94_07_NI'};
+prior_type = '';
     
 for iCounter = 1:size(instrList,2)
     for mCounter = 1:size(model_vec,2)
         mmodel = model_vec(:,mCounter);
        if strcmp(mmodel, 'Chol_4eq')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'IPM','UNRATE','PPI_FIN','FFR_SSR'}; %,'BAA_10YMOODY'
+            i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'EFFR'};
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;
-            i_var_str_names =  {'IPM','UNRATE','PPI_FIN','FFR_SSR'}; % ,'BBA-10Y'
+            i_var_str_names =  i_var_str;
             str_sample_init = '1990-01-01';
             str_sample_end  = '2007-06-01';
             str_iv_init     = '1994-01-01';
@@ -39,11 +38,11 @@ for iCounter = 1:size(instrList,2)
             ddelta_index = 4; % ffr
        elseif strcmp(mmodel, 'Chol_5eq')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'IPM','UNRATE','PPI_FIN','BAA_10YMOODY','FFR_SSR'}; %,'BAA_10YMOODY'
+            i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR'}; %,'BAA_10YMOODY'
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;
-            i_var_str_names =  {'IPM','UNRATE','PPI_FIN','BAA_10YMOODY','FFR_SSR'}; % ,'BBA-10Y'
+            i_var_str_names =  i_var_str;
             str_sample_init = '1990-01-01';
             str_sample_end  = '2007-06-01';
             str_iv_init     = '1994-01-01';
@@ -53,29 +52,13 @@ for iCounter = 1:size(instrList,2)
             p = 12;                     % Number of lags
             aalpha_index = 1:4;
             ddelta_index = 5; % ffr
-       elseif strcmp(mmodel, 'Chol_5eqOrd2')
-            i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'IPM','UNRATE','PPI_FIN','FFR_SSR','BAA_10YMOODY'}; %,'BAA_10YMOODY'
-            i_var_transf =  {};
-            nCalc = length(i_var_transf);
-            Horizon = 48;
-            i_var_str_names =  {'IPM','UNRATE','PPI_FIN','FFR_SSR','BAA_10YMOODY'}; % ,'BBA-10Y'
-            str_sample_init = '1990-01-01';
-            str_sample_end  = '2007-06-01';
-            str_iv_init     = '1994-01-01';
-            varSelec = [1 2 3 4 5];
-            nIV = size(i_var_instr,2);
-            nshocks=length(i_var_str); % Number of shocks to identify
-            p = 12;                     % Number of lags
-            aalpha_index = [1 2 3 5];
-            ddelta_index = 4; % ffr
        elseif strcmp(mmodel, 'Coibion')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'IPM','PPI_FIN','UNRATE','CRB_COMMP','RR_SHOCK_NOSPREAD'};
+            i_var_str =  {'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR','MRR'};
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;
-            i_var_str_names =  {'IPM','PPI_FIN','UNRATE','CRB_COMMP','RR_SHOCK_NOSPREAD'};
+            i_var_str_names =  i_var_str
             str_sample_init = '1994-01-01';
             str_sample_end  = '2007-06-01';
             str_iv_init     = '1994-01-01';
@@ -138,70 +121,6 @@ for iCounter = 1:size(instrList,2)
 %             ddelta_index = 5; % ffr
             aalpha_index = [1 2 3 4 5];
             ddelta_index = 6; % ffr
-        elseif strcmp(mmodel, 'Coibion1stWithSpread')
-            i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'RR_SHOCK_NOSPREAD','IPM','PPI_FIN','UNRATE','CRB_COMMP','BAA_10YMOODY'};
-            i_var_transf =  {};
-            nCalc = length(i_var_transf);
-            Horizon = 48;
-            i_var_str_names =  {'RR_SHOCK_NOSPREAD','IPM','PPI_FIN','UNRATE','CRB_COMMP','BAA_10YMOODY'};
-            str_sample_init = '1994-01-01';
-            str_sample_end  = '2007-06-01';
-            str_iv_init     = '1994-01-01';
-            varSelec = [1 2 3 4 5 6];
-            nIV = size(i_var_instr,2);
-            nshocks=length(i_var_str); % Number of shocks to identify
-            p = 12;                     % Number of lags
-            aalpha_index = 2:6;
-            ddelta_index = 1; % ffr
-        elseif strcmp(mmodel, 'Coibion1stNewInstrWithSpread')
-            i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'RR_SHOCK_SUB','IPM','PPI_FIN','UNRATE','CRB_COMMP','BAA_10YMOODY'};
-            i_var_transf =  {};
-            nCalc = length(i_var_transf);
-            Horizon = 48;
-            i_var_str_names =  {'RR_SHOCK_SUB','IPM','PPI_FIN','UNRATE','CRB_COMMP','BAA_10YMOODY'};
-            str_sample_init = '1994-01-01';
-            str_sample_end  = '2007-06-01';
-            str_iv_init     = '1994-01-01';
-            varSelec = [1 2 3 4 5 6];
-            nIV = size(i_var_instr,2);
-            nshocks=length(i_var_str); % Number of shocks to identify
-            p = 12;                     % Number of lags
-            aalpha_index = 2:6;
-            ddelta_index = 1; % ffr
-                    elseif strcmp(mmodel, 'Coibion1st')
-            i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'RR_SHOCK_NOSPREAD','IPM','PPI_FIN','UNRATE','CRB_COMMP'};
-            i_var_transf =  {};
-            nCalc = length(i_var_transf);
-            Horizon = 48;
-            i_var_str_names =  {'RR_SHOCK_NOSPREAD','IPM','PPI_FIN','UNRATE','CRB_COMMP'};
-            str_sample_init = '1994-01-01';
-            str_sample_end  = '2007-06-01';
-            str_iv_init     = '1994-01-01';
-            varSelec = [1 2 3 4 5];
-            nIV = size(i_var_instr,2);
-            nshocks=length(i_var_str); % Number of shocks to identify
-            p = 12;                     % Number of lags
-            aalpha_index = 2:5;
-            ddelta_index = 1; % ffr
-        elseif strcmp(mmodel, 'Coibion1stNewInstr')
-            i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'RR_SHOCK_SUB','IPM','PPI_FIN','UNRATE','CRB_COMMP'};
-            i_var_transf =  {};
-            nCalc = length(i_var_transf);
-            Horizon = 48;
-            i_var_str_names =  {'RR_SHOCK_SUB','IPM','PPI_FIN','UNRATE','CRB_COMMP'};
-            str_sample_init = '1994-01-01';
-            str_sample_end  = '2007-06-01';
-            str_iv_init     = '1994-01-01';
-            varSelec = [1 2 3 4 5];
-            nIV = size(i_var_instr,2);
-            nshocks=length(i_var_str); % Number of shocks to identify
-            p = 12;                     % Number of lags
-            aalpha_index = 2:5;
-            ddelta_index = 1; % ffr
         end
 
     data_file = '/mq/DSGE/research/MPpremia/missPaper/AEJreplication/DATA/CHdata.txt';
@@ -265,7 +184,7 @@ for iCounter = 1:size(instrList,2)
     BbarT = NT\(N0*Bbar0 + (X'*X)*B);
     ST = (nnu0/nnuT)*S0 + (T/nnuT)*Sigmau + (1/nnuT)*((B-Bbar0)')*N0*(NT\eye(n*p+nex))*(X'*X)*(B-Bbar0); %% Constant (check)
     STinv = ST\eye(n);
-    dfjklasdf
+
 
     % MCMC Chain 
 
@@ -421,11 +340,11 @@ for iCounter = 1:size(instrList,2)
     SVAR.i_var_str_names = i_var_str_names;
     SVAR.EETA = EETA;
     
-    savefileirf = strcat('./results/Result_',char(mmodel),'.mat');
+    savefileirf = strcat('./results/Result_',char(mmodel),char(i_var_instr),'p_',num2str(p),'_pr_',prior_type,'MP_',num2str(MP),'.mat');
     save(savefileirf,'SVAR'); 
     toc
 
-    vm_plot_irf_bvar(mmodel,fflagFEVD,printFig)
+    vm_plot_irf_bvar(mmodel,prior_type,i_var_instr,p,MP,fflagFEVD,printFig)
 
     end
 end

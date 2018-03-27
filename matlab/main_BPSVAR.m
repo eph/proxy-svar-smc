@@ -10,18 +10,18 @@ close all;
 
 addpath('./auxfiles')
 addpath('./results')
-acpt =0
+
 %------------------------------------------------------------
 % SETTINGS
 %------------------------------------------------------------
-model_vec = {'4eq', '5eq'};             % Select Model
+model_vec = {'4eq'};                    % Select Model
 instrList = {'MHF'};
 p = 12;                                 % Number of lags
 nex_ = 1;                               % Constant
 Horizon = 48;                           % Horizon for calculation of impulse responses
 MP = 0;                                 % Tightness of the Minnesota Prior (0: loose; 1: tight)
 T0 = p+36;                              % Length of pre-sample for Minnesota Prior
-nd = 50000;                             % Number of draws in MC chain
+nd = 100000;                             % Number of draws in MC chain
 bburn = 0.1*nd;                         % Burn-in period
 fflagFEVD = 0;                          % Compute FEVD
 printFig = 1;                           % Save Figures in PDF
@@ -337,7 +337,7 @@ for mCounter = 1:size(model_vec,2)
  
         % bayesian linear regresion model
         Bhat = inv(Xe'*Xe)*Xe'*MM;
-        Vp = inv(Xe'*Xe + inv(V0));
+        Vp = inv(Xe'*Xe + inv(V0/signu^2));
         mup = Vp * (Xe'*Xe*Bhat + inv(V0)*mu0);
 
         if (prior_type == 'IG')          
@@ -349,7 +349,7 @@ for mCounter = 1:size(model_vec,2)
             signu = pr_trunc*std(MM);
         end
  
-        bet = mvnrnd(mup, signu^2 * Vp);
+        bet = mvnrnd(mup, signu^2*Vp);
 
 
         lnp0 = loglik_m_given_y(MM, Udrawstar(ndum+1:end, :), LCstar, Q(:,nIV), bet, signu);
@@ -454,6 +454,8 @@ for mCounter = 1:size(model_vec,2)
     SVAR.RELFull  = quantile(REL,ptileVEC);
     SVAR.BETFull  = quantile(BET,ptileVEC);
     SVAR.SIGFull  = quantile(SIG,ptileVEC);
+    SVAR.SIG = SIG;
+    SVAR.BET = BET;
     SVAR.acpt_rf = acpt_rf/record;
     SVAR.acpt_Q  = acpt_Q/(record*nq);
     SVAR.p = p;
