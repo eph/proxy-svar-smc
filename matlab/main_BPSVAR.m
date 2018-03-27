@@ -105,7 +105,7 @@ for mCounter = 1:size(model_vec,2)
 
     nlags_ = p;
 
-    data_file = '/mq/DSGE/research/MPpremia/missPaper/AEJreplication/DATA/CHdata.txt';
+    data_file = '../data/CHdata.txt';
     data_spreadsheet = 'Sheet1';
 
     %-------------------------------------------

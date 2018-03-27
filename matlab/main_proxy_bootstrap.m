@@ -42,7 +42,7 @@ varSize = 4;            %select number of variables (4 or 5)
 %==========================================================================
 % Load Data
 %==========================================================================
-data_file = 'CHdata';
+data_file = '../data/CHdata.txt';
 data_spreadsheet = 'Sheet1';
 i_var_transf =  {};
 

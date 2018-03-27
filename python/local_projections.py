@@ -2,17 +2,7 @@ import pandas as p
 import statsmodels.formula.api as smf
 
 
-data_file = '../data/varData.txt'
-var_data = p.read_csv(data_file, delim_whitespace=True, parse_dates=True, index_col=['DATES'])
-#var_data.index = p.period_range(freq='M', start='1973-01', periods=var_data.shape[0])
-var_data2 = var_data
-
 from models import data as var_data
-
-#var_data['MRR'] = var_data2['MRR']
-#var_data['MRRCS'] = var_data2['MRRCS']
-
-#var_data['EFFR2'] = var_data2['FFR_SSR']
 
 
 key = dict(FFR='EFFR', 
@@ -23,6 +13,7 @@ key = dict(FFR='EFFR',
            DIP='DIP', 
            DP='DP')
 
+# old mnenomics
 # key = dict(FFR='FFR_SSR', 
 #            IP='IPM', 
 #            U='UNRATE', 
@@ -57,7 +48,10 @@ for h in range(49):
 
 
 def uniform_weights(h): return np.ones(h+1)
-def egon_predictability_regression(h=0, p=12, d0='1994-01', d1='2007-06', shock='RR_CS', controls=['U','DIP','FFR', 'DP'], y='DLOGIP_H'):
+
+
+def egon_predictability_regression(h=0, p=12, d0='1994-01', d1='2007-06', 
+                                   shock='MRR', controls=['U','DIP','FFR', 'DP'], y='DLOGIP_H'):
     y = y + str(h) 
 
     controls_vec = []

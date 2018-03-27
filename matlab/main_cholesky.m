@@ -123,7 +123,7 @@ for iCounter = 1:size(instrList,2)
             ddelta_index = 6; % ffr
         end
 
-    data_file = '/mq/DSGE/research/MPpremia/missPaper/AEJreplication/DATA/CHdata.txt';
+    data_file = '../data/CHdata.txt';
     data_spreadsheet = 'Sheet1';
 
     nlags_ = p;

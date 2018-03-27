@@ -4,7 +4,7 @@ import pandas as p
 
 from pyvar import DummyVarPrior, SimsZhaSVARPrior, BayesianVAR
 
-data_file = '/mq/DSGE/research/MPpremia/missPaper/AEJreplication/DATA/CHdata.txt'
+data_file = '../data/CHdata.txt'
 data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
 
 
@@ -130,3 +130,13 @@ class InvGamma(object):
     def rvs(self):
         rn = rv.norm.rvs(size=(int(self.b), 1))
         return np.sqrt(self.b*self.a**2 / np.sum(rn**2, 0))
+import numpy as np
+from numpy.linalg import svd
+
+def nullspace(A,  atol=1e-13, rtol=0):
+    A = np.atleast_2d(A)
+    u, s, vh = svd(A)
+    tol = max(atol, rtol * s[0])
+    nnz = (s >= tol).sum()
+    ns = vh[nnz:].conj().T
+    return ns
