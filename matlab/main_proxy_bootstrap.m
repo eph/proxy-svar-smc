@@ -53,9 +53,9 @@ str_iv_init     = '1994-01-01';
 i_var_instr = {'MHF'};
 
 if varSize == 4
-    i_var_str =  {'EFFR', 'LIPM','UNRATE','LPPI'};
+    i_var_str =  {'EFFR_LW', 'LIPM','UNRATE','LPPI'};
 elseif varSize == 5
-    i_var_str =  {'EFFR', 'LIPM','UNRATE','LPPI','BAA10YMOODY'};
+    i_var_str =  {'EFFR_LW', 'LIPM','UNRATE','LPPI','BAA10YMOODY'};
 end
 
 vm_loaddata

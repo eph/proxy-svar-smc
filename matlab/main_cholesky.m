@@ -22,7 +22,7 @@ for iCounter = 1:size(instrList,2)
         mmodel = model_vec(:,mCounter);
        if strcmp(mmodel, 'Chol_4eq')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'EFFR'};
+            i_var_str =  {'EFFR_LW', 'LIPM', 'UNRATE', 'EFFR'};
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;
@@ -38,7 +38,7 @@ for iCounter = 1:size(instrList,2)
             ddelta_index = 4; % ffr
        elseif strcmp(mmodel, 'Chol_5eq')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR'}; %,'BAA_10YMOODY'
+            i_var_str =  {'EFFR_LW', 'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR'}; %,'BAA_10YMOODY'
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;
@@ -54,7 +54,7 @@ for iCounter = 1:size(instrList,2)
             ddelta_index = 5; % ffr
        elseif strcmp(mmodel, 'Coibion')
             i_var_instr = instrList(:,iCounter);
-            i_var_str =  {'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR','MRR'};
+            i_var_str =  {'LIPM', 'UNRATE', 'BAA10YMOODY', 'EFFR_LW','MRR'};
             i_var_transf =  {};
             nCalc = length(i_var_transf);
             Horizon = 48;

@@ -61,46 +61,18 @@ for mCounter = 1:size(model_vec,2)
     mmodel = model_vec(:,mCounter);
     if strcmp(mmodel, '5eq')
         i_var_instr = instrList;
-        i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'LPPI', 'BAA10YMOODY'};
+        i_var_str =  {'EFFR_LW', 'LIPM', 'UNRATE', 'LPPI', 'BAA10YMOODY'};
         i_var_transf =  {};     % Variable that require additional transformations
         nCalc = length(i_var_transf);
         i_var_str_names =  i_var_str; % Name of variables (for plots)
         varSelec = [1 2 3 4 5]; % Select variables to plot
     elseif strcmp(mmodel, '4eq')
         i_var_instr = instrList;
-        i_var_str =  {'EFFR', 'LIPM', 'UNRATE', 'LPPI'};
+        i_var_str =  {'EFFR_LW', 'LIPM', 'UNRATE', 'LPPI'};
         i_var_transf =  {};     % Variable that require additional transformations
         nCalc = length(i_var_transf);
         i_var_str_names =  i_var_str; % Name of variables (for plots)
         varSelec = [1 2 3 4]; % Select variables to plot
-    elseif strcmp(mmodel, 'm2lev_2yr')
-        i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'YLD0200'};
-        i_var_transf =  {};     % Variable that require additional transformations
-        nCalc = length(i_var_transf);
-        i_var_str_names =  i_var_str; % Name of variables (for plots)
-        varSelec = [1 2 3 4 5 6]; % Select variables to plot
-    elseif strcmp(mmodel, 'm2lev_5yr')
-        i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'YLD0500'};
-        i_var_transf =  {};     % Variable that require additional transformations
-        nCalc = length(i_var_transf);
-        i_var_str_names =  i_var_str; % Name of variables (for plots)
-        varSelec = [1 2 3 4 5 6]; % Select variables to plot
-    elseif strcmp(mmodel, 'm2lev_10yr')
-        i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'YLD1000'};
-        i_var_transf =  {};     % Variable that require additional transformations
-        nCalc = length(i_var_transf);
-        i_var_str_names =  i_var_str; % Name of variables (for plots)
-        varSelec = [1 2 3 4 5 6]; % Select variables to plot
-    elseif strcmp(mmodel, 'm2lev_dlsp')
-        i_var_instr = instrList;
-        i_var_str =  {'FFR_SSR', 'IPM','UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'LMRET'};
-        i_var_transf =  {'LMRET'};     % Variable that require additional transformations
-        nCalc = length(i_var_transf);
-        i_var_str_names =  i_var_str; % Name of variables (for plots)
-        varSelec = [1 2 3 4 5 6]; % Select variables to plot
     end
 
     nlags_ = p;

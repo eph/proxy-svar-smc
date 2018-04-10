@@ -9,7 +9,7 @@ data = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dat
 
 
 
-yy = ['EFFR', 'LIPM', 'UNRATE', 'LPPI', 'BAA10YMOODY']
+yy = ['EFFR_LW', 'LIPM', 'UNRATE', 'LPPI', 'BAA10YMOODY']
 
 restriction = np.ones((5, 5), dtype=bool)
 hyper = np.ones((7,))

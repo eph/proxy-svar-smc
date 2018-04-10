@@ -12,7 +12,7 @@ parser.add_argument('--output-file', help='file name', action='store',
 args = parser.parse_args()
 
 
-key = dict(FFR='EFFR',
+key = dict(FFR='EFFR_LW',
            IP='LIPM',
            U='UNRATE',
            P='LPPI',
@@ -20,14 +20,6 @@ key = dict(FFR='EFFR',
            DIP='DIP',
            DP='DP')
 
-# old mnenomics
-# key = dict(FFR='FFR_SSR',
-#            IP='IPM',
-#            U='UNRATE',
-#            P='PPI_FIN',
-#            CS='BAA_10YMOODY',
-#            DIP='DIP',
-#            DP='DP')
 
 
 var_data['DP'] = var_data[key['P']].diff()
@@ -111,18 +103,20 @@ for y in ['FFR_H', 'DIP_H', 'U_H', 'DP_H', 'CS_H']:
         controls = ['U', 'DIP', 'FFR', 'DP']
 
         d = to_run(p=12, controls=controls, h=h, shock='MRR', y=y)
-        rrcs_pred[h - 1] = [d.params[-1], d.bse[-1]]
+        rr_pred[h - 1] = [d.params[-1], d.bse[-1]]
 
         d = to_run(p=12, controls=controls, h=h, shock='MRRCS', y=y)
-        rr_pred[h - 1] = [d.params[-1], d.bse[-1]]
+        rrcs_pred[h - 1] = [d.params[-1], d.bse[-1]]
 
         controls.append('CS')
 
         d = to_run(p=12, controls=controls, h=h, shock='MRR', y=y)
+        rr_pred_cs[h - 1] = [d.params[-1], d.bse[-1]]
+        
+        d = to_run(p=12, controls=controls, h=h, shock='MRRCS', y=y)
         rrcs_pred_cs[h - 1] = [d.params[-1], d.bse[-1]]
 
-        d = to_run(p=12, controls=controls, h=h, shock='MRRCS', y=y)
-        rr_pred_cs[h - 1] = [d.params[-1], d.bse[-1]]
+
 
     rescs[y] = p.DataFrame(rrcs_pred, columns=['mn', 'se'])
     res[y] = p.DataFrame(rr_pred, columns=['mn', 'se'])
