@@ -12,7 +12,8 @@ Data used in the paper:
 
 * `data/vardata.txt` contains the macroeconomic series used to estimate the
   proxy SVARs and the local projections.
-  * The effective federal funds rate, the unemployment rate, and the producer
+  * The federal funds rate is the average effective rate over the last week of the month
+  * The unemployment rate, and the producer
     price index for final goods are taken from Coibion (2012) "Are the effects
     of monetary policy shocks big or small?"
   * We use manufacturing industrial production index (NAICS);

@@ -14,14 +14,14 @@ addpath('./results')
 %------------------------------------------------------------
 % SETTINGS
 %------------------------------------------------------------
-model_vec = {'4eq'};                    % Select Model
+model_vec = {'4eq'};                    % Select Model ('4eq' or '5eq')
 instrList = {'MHF'};
 p = 12;                                 % Number of lags
 nex_ = 1;                               % Constant
 Horizon = 48;                           % Horizon for calculation of impulse responses
 MP = 0;                                 % Tightness of the Minnesota Prior (0: loose; 1: tight)
 T0 = p+36;                              % Length of pre-sample for Minnesota Prior
-nd = 100000;                             % Number of draws in MC chain
+nd = 100000;                            % Number of draws in MC chain
 bburn = 0.1*nd;                         % Burn-in period
 fflagFEVD = 0;                          % Compute FEVD
 printFig = 1;                           % Save Figures in PDF
