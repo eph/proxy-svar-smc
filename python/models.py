@@ -102,9 +102,6 @@ models_old = {'4eq': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN'],
                                proxy='MHF', 
                                svar_model=svar_model)}
 
-data_file = '/mq/DSGE/research/MPpremia/missPaper/publicCodes/RomerRomer_Replication/Choleski/vardataJune7.txt'
-data_old = p.read_csv(data_file, delim_whitespace=True, index_col='DATES', parse_dates=True)
-
 import scipy.stats as rv
 
 class InvGamma(object):
@@ -140,3 +137,4 @@ def nullspace(A,  atol=1e-13, rtol=0):
     nnz = (s >= tol).sum()
     ns = vh[nnz:].conj().T
     return ns
+

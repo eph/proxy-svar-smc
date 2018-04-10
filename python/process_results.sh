@@ -11,4 +11,4 @@ python compare_irfs.py --model 4eq_cholesky_RRCS 5eq_cholesky_RRCS --overlay 4eq
 # tables
 python compare_elasticities.py --model 4eq 5eq  --output-file table_1.tex --sim-dir $OD
 python compare_elasticities.py --model 5eq 5eq_tight --output-file table_2.tex --sim-dir $OD
-python local_projections.py
+python local_projections.py --output-file $OD/table_4.tex
