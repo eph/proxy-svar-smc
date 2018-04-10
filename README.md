@@ -44,7 +44,8 @@ Data used in the paper:
 ### Estimating Models
 
 For most models, you can either use Matlab (Gibbs Sampler) or Python/Fortran
-(Sequential Monte Carlo) to estimate the models.
+(Sequential Monte Carlo) to estimate the models.  See the anaconda environment
+file (proxy-svar.yaml) for the python packages necessary.
 
 | Model                       | Matlab                       | Python                                             |
 |-----------------------------|------------------------------|----------------------------------------------------|
