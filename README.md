@@ -136,12 +136,9 @@ file (proxy-svar.yaml) for the python packages necessary.
 
 11. Figure 7: Impulse Responses to a Monetary Policy Shock
 
-
-
-
-12. Figure 8: Impulse Responses to a Monetary Policy Shock
-
-13. Table 5: Determinants of the Federal Funds Rate
+    The figure is created automatically after the matlab estimation.
+    
+12. Table 5: Determinants of the Federal Funds Rate
 
     ```sh
     cd stata
