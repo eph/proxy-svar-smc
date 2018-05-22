@@ -163,6 +163,9 @@ else:
     smc = make_smc(varfile, other_files=other_files,
                    output_directory=output_dir)
 
+    if 'fin' in args.model:
+        print("For financial shock, you need to impose the sign restriction manually in the fortran code!")
+
     smc.run(npart=args.nsim, nblocks=25, nproc=args.nproc, bend=2.7,
             conditional_covariance=True,
             initial_particles=output_dir + '/priordraws.txt',
