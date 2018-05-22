@@ -81,26 +81,6 @@ models = {'4eq': dict(yy=['EFFR', 'LIPM', 'UNRATE', 'LPPI'],
                                svar_model=svar_model), 
 }
 
-models_old = {'4eq': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN'], 
-                      plot_yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN'], 
-                      hyper=[ 0.5, 1, 1, 0.5, 0.5, 1],
-                      proxy='EGON_KUTTNER_NI', #'MHF', 
-                      svar_model=svar_model4),
-          '5eq': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY'], 
-                      plot_yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY'], 
-                      hyper=[0.5, 3, 1, 0.5, 0.5, 1],
-                      proxy='EGON_KUTTNER_NI', 
-                      svar_model=svar_model),
-          '5eq_tight': dict(yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY'], 
-                      plot_yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY'], 
-                      hyper=[0.5, 3, 1, 0.5, 0.5, 1],
-                      proxy='EGON_KUTTNER_NI', 
-                      svar_model=svar_model), 
-          '5eq_cholesky': dict(yy=['IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY', 'FFR_SSR'],
-                               plot_yy=['FFR_SSR', 'IPM', 'UNRATE', 'PPI_FIN', 'BAA_10YMOODY'], 
-                               hyper=[0.5, 3, 1, 0.5, 0.5, 1],
-                               proxy='MHF', 
-                               svar_model=svar_model)}
 
 import scipy.stats as rv
 

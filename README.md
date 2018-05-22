@@ -10,7 +10,7 @@ Email ed.herbst@gmail.com with comments/questions.
 
 Data used in the paper:
 
-* `data/vardata.txt` contains the macroeconomic series used to estimate the
+* `data/CHdata.txt` contains the macroeconomic series used to estimate the
   proxy SVARs and the local projections.
   * The federal funds rate is the average effective rate over the last week of the month
   * The unemployment rate, and the producer
